@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sanjeevni Hospital – Healing with Heart</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ═══════════════════ NAVBAR ═══════════════════ -->
+<nav class="navbar">
+  <a class="logo" href="#">
+    <!-- <div class="logo-icon"><i class="fas fa-heartbeat"></i></div> -->
+    <div class="logo-text">Sanje<span>evni</span></div>
+  </a>
+
+  <div class="nav-center" id="navLinks">
+    <a href="#">Home</a>
+    <a href="#about">About</a>
+    <a href="#services">Services</a>
+    <a href="#doctors">Doctors</a>
+    <a href="#why">Why Us</a>
+    <a href="#contact">Contact</a>
+  </div>
+
+  <div class="nav-right">
+    <button class="btn-patient" onclick="openModal('patientModal')">
+      <i class="fas fa-user-injured" style="margin-right:6px;font-size:0.85em"></i>Patient Login
+    </button>
+    <button class="btn-staff" onclick="openModal('staffModal')">
+      <i class="fas fa-user-md" style="margin-right:6px;font-size:0.85em"></i>Staff Login
+    </button>
+    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#">Home</a>
+  <a href="#about">About</a>
+  <a href="#services">Services</a>
+  <a href="#doctors">Doctors</a>
+  <a href="#why">Why Us</a>
+  <a href="#contact">Contact</a>
+</div>
+
+<!-- ═══════════════════ HERO CAROUSEL ═══════════════════ -->
+<section class="hero" id="home">
+  <div class="slide active">
+    <div class="slide-bg" style="background-image: url('images/hospitalMainPage.jpeg'); background-size:cover "></div>
+    <div class="slide-overlay"></div>
+    <div class="slide-content">
+      <div class="slide-badge">✦ Trusted Since 1999</div>
+      <h1>Sanjeevni</h1>
+      <p>World-class medical facilities with a warm human touch. Your health, our sacred duty.</p>
+    </div>
+  </div>
+
+  <div class="slide">
+    <div class="slide-bg" style="background-image: url('images/site.png'); background-size:cover;"></div>
+    <div class="slide-overlay"></div>
+    <div class="slide-content">
+      <div class="slide-badge">✦ NABH Accredited</div>
+      <h1>Sanjeevni</h1>
+      <p>From diagnostics to surgery, we combine innovation with empathy at every step.</p>
+    </div>
+  </div>
+
+  <div class="slide">
+    <div class="slide-bg" style="background-image: url('link_to_image3.jpg');"></div>
+    <div class="slide-overlay"></div>
+    <div class="slide-content">
+      <div class="slide-badge">✦ 24/7 Emergency</div>
+      <h1>Sanjeevni</h1>
+      <p>Round-the-clock emergency services with rapid response teams, ready every moment.</p>
+    </div>
+  </div>
+
+  <div class="slide">
+    <div class="slide-bg" style="background-image: url('link_to_image4.jpg');"></div>
+    <div class="slide-overlay"></div>
+    <div class="slide-content">
+      <div class="slide-badge">✦ Elderly Specialists</div>
+      <h1>Sanjeevni</h1>
+      <p>Specialised geriatric care programmes designed with dignity, comfort and respect.</p>
+    </div>
+  </div>
+
+  <button class="carousel-btn prev" onclick="changeSlide(-1)"><i class="fas fa-chevron-left"></i></button>
+  <button class="carousel-btn next" onclick="changeSlide(1)"><i class="fas fa-chevron-right"></i></button>
+  <div class="carousel-dots" id="dots"></div>
+</section>
+
+<!-- ═══════════════════ STATS BANNER ═══════════════════ -->
+<div class="stats-banner">
+  <div class="stats-inner">
+    <div class="stat-block">
+      <div class="stat-icon"><i class="fas fa-smile-beam"></i></div>
+      <div>
+        <div class="stat-num">5,000+</div>
+        <div class="stat-label">Happy Patients Annually</div>
+      </div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-icon"><i class="fas fa-award"></i></div>
+      <div>
+        <div class="stat-num">25+ Yrs</div>
+        <div class="stat-label">Of Trust & Excellence</div>
+      </div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+      <div>
+        <div class="stat-num">95%</div>
+        <div class="stat-label">Treatment Success Rate</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ RADIAL / CORE VALUES ═══════════════════ -->
+<section class="radial-section" id="services">
+  <div class="radial-wrap">
+    <div class="radial-text">
+      <div class="section-tag reveal">Our Unique Edge</div>
+      <h2 class="section-title reveal reveal-delay-1">Smart Features<br>Built Around You</h2>
+      <p class="section-sub reveal reveal-delay-2">Sanjeevni is built not just as a hospital, but as a lifelong care companion — from smart reminders to post-discharge support.</p>
+
+      <div style="display:flex;flex-direction:column;gap:14px" class="reveal reveal-delay-3">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--teal);flex-shrink:0"></div>
+          <span style="font-size:0.92rem;color:var(--muted)">AI-powered smart medical reminders</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--teal);flex-shrink:0"></div>
+          <span style="font-size:0.92rem;color:var(--muted)">Voice assistance for elderly patients</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--teal);flex-shrink:0"></div>
+          <span style="font-size:0.92rem;color:var(--muted)">One-tap document & report scanner</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--teal);flex-shrink:0"></div>
+          <span style="font-size:0.92rem;color:var(--muted)">Dedicated post-hospital support programme</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="radial-diagram" id="radialDiagram">
+      <!-- SVG connector lines -->
+      <svg class="radial-svg" id="connectorSvg" viewBox="0 0 380 380" preserveAspectRatio="xMidYMid meet">
+        <!-- Lines drawn by JS -->
+      </svg>
+
+      <!-- Center circle -->
+      <div class="center-circle">
+        <i class="fas fa-heartbeat"></i>
+        <span>Sanjeevni's<br>Core Care</span>
+      </div>
+
+      <!-- Feature circles -->
+      <div class="feature-circle fc-top">
+        <i class="fas fa-bell"></i>
+        <span>Smart Medical<br>Reminders</span>
+      </div>
+      <div class="feature-circle fc-tr">
+        <i class="fas fa-microphone"></i>
+        <span>Voice<br>Assistance</span>
+      </div>
+      <div class="feature-circle fc-br">
+        <i class="fas fa-qrcode"></i>
+        <span>Easy Medical<br>Scanner</span>
+      </div>
+      <div class="feature-circle fc-bl">
+        <i class="fas fa-hands-helping"></i>
+        <span>Post-Hospital<br>Support</span>
+      </div>
+      <div class="feature-circle fc-tl">
+        <i class="fas fa-robot"></i>
+        <span>AI Health<br>Assistant</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ DOCTORS ═══════════════════ -->
+<section class="doctors-section" id="doctors">
+  <div style="max-width:1100px;margin:0 auto">
+    <div class="section-tag reveal">Our Medical Team</div>
+    <h2 class="section-title reveal reveal-delay-1">Meet Our Expert Doctors</h2>
+    <p class="section-sub reveal reveal-delay-2">Highly qualified, compassionate specialists committed to your wellbeing — bringing decades of experience and the latest techniques to your care.</p>
+
+    <div class="doctors-grid">
+      <div class="doctor-card reveal">
+        <div class="doctor-img"><div class="doc-avatar">👨‍⚕️</div></div>
+        <div class="doctor-body">
+          <div class="doctor-name">Dr. Ramesh Khanna</div>
+          <div class="doctor-spec">Cardiologist</div>
+          <div class="doctor-exp"><i class="fas fa-clock" style="color:var(--teal);margin-right:5px;font-size:0.75rem"></i>18 Years Experience</div>
+          <!-- <div class="doc-rating">
+            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+            <span>5.0 (124 reviews)</span>
+          </div> -->
+        </div>
+      </div>
+      <div class="doctor-card reveal">
+        <div class="doctor-img"><div class="doc-avatar">👩‍⚕️</div></div>
+        <div class="doctor-body">
+          <div class="doctor-name">Dr. Aastha Nayak</div>
+          <div class="doctor-spec">Cardiologist</div>
+          <div class="doctor-exp"><i class="fas fa-clock" style="color:var(--teal);margin-right:5px;font-size:0.75rem"></i>18 Years Experience</div>
+          <!-- <div class="doc-rating">
+            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+            <span>5.0 (124 reviews)</span>
+          </div> -->
+        </div>
+      </div>
+      <div class="doctor-card reveal reveal-delay-1">
+        <div class="doctor-img"><div class="doc-avatar">👩‍⚕️</div></div>
+        <div class="doctor-body">
+          <div class="doctor-name">Dr. Aarya Nayak </div>
+          <div class="doctor-spec">Neurologist</div>
+          <div class="doctor-exp"><i class="fas fa-clock" style="color:var(--teal);margin-right:5px;font-size:0.75rem"></i>14 Years Experience</div>
+          <!-- <div class="doc-rating">
+            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+            <span>4.9 (98 reviews)</span>
+          </div> -->
+        </div>
+      </div>
+      <div class="doctor-card reveal reveal-delay-2">
+        <div class="doctor-img"><div class="doc-avatar">👩‍⚕️</div></div>
+        <div class="doctor-body">
+          <div class="doctor-name">Dr. Sanchita Jain</div>
+          <div class="doctor-spec">Orthopaedic Surgeon</div>
+          <div class="doctor-exp"><i class="fas fa-clock" style="color:var(--teal);margin-right:5px;font-size:0.75rem"></i>22 Years Experience</div>
+          <!-- <div class="doc-rating">
+            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+            <span>5.0 (210 reviews)</span>
+          </div> -->
+        </div>
+      </div>
+      <div class="doctor-card reveal reveal-delay-3">
+        <div class="doctor-img"><div class="doc-avatar">👩‍⚕️</div></div>
+        <div class="doctor-body">
+          <div class="doctor-name">Dr. Salini Yadav</div>
+          <div class="doctor-spec">Ophthalmologist</div>
+          <div class="doctor-exp"><i class="fas fa-clock" style="color:var(--teal);margin-right:5px;font-size:0.75rem"></i>12 Years Experience</div>
+          <!-- <div class="doc-rating">
+            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+            <span>4.9 (64 reviews)</span>
+          </div> -->
+        </div>
+      </div>
+      <div class="doctor-card reveal reveal-delay-1">
+        <div class="doctor-img"><div class="doc-avatar">👩‍⚕️</div></div>
+        <div class="doctor-body">
+          <div class="doctor-name">Dr. Aashi Singhai</div>
+          <div class="doctor-spec">Geriatric Specialist</div>
+          <div class="doctor-exp"><i class="fas fa-clock" style="color:var(--teal);margin-right:5px;font-size:0.75rem"></i>16 Years Experience</div>
+          <!-- <div class="doc-rating">
+            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+            <span>4.8 (87 reviews)</span>
+          </div> -->
+        </div>
+      </div>
+      <div class="doctor-card reveal reveal-delay-2">
+        <div class="doctor-img"><div class="doc-avatar">👨‍⚕️</div></div>
+        <div class="doctor-body">
+          <div class="doctor-name">Dr. Vikram Singh</div>
+          <div class="doctor-spec">Oncologist</div>
+          <div class="doctor-exp"><i class="fas fa-clock" style="color:var(--teal);margin-right:5px;font-size:0.75rem"></i>20 Years Experience</div>
+          <!-- <div class="doc-rating">
+            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+            <span>5.0 (176 reviews)</span>
+          </div> -->
+        </div>
+      </div>
+      <div class="doctor-card reveal reveal-delay-3">
+        <div class="doctor-img"><div class="doc-avatar">👩‍⚕️</div></div>
+        <div class="doctor-body">
+          <div class="doctor-name">Dr. Saloni Yadav</div>
+          <div class="doctor-spec">Ophthalmologist</div>
+          <div class="doctor-exp"><i class="fas fa-clock" style="color:var(--teal);margin-right:5px;font-size:0.75rem"></i>20 Years Experience</div>
+          <!-- <div class="doc-rating">
+            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+            <span>4.9 (64 reviews)</span>
+          </div> -->
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ WHY CHOOSE US ═══════════════════ -->
+<section class="why-section" id="why">
+  <div style="max-width:1100px;margin:0 auto">
+    <div class="section-tag reveal">Why Sanjeevni?</div>
+    <h2 class="section-title reveal reveal-delay-1">The Sanjeevni Promise</h2>
+    <p class="section-sub reveal reveal-delay-2">We go beyond treatment — we build trust, deliver comfort, and ensure every patient feels cared for at every step of their journey.</p>
+
+    <div class="why-grid">
+      <div class="why-card reveal">
+        <div class="why-icon"><i class="fas fa-user-nurse"></i></div>
+        <h3>Patient-First Approach</h3>
+        <p>Every decision, every protocol, every innovation is centred around the patient's comfort, dignity, and fastest possible recovery.</p>
+      </div>
+      <!-- <div class="why-card reveal reveal-delay-1">
+        <div class="why-icon"><i class="fas fa-microscope"></i></div>
+        <h3>Advanced Diagnostics</h3>
+        <p>State-of-the-art labs and imaging technology — MRI, CT, PET scans — delivering precise results so treatment can begin without delay.</p>
+      </div> -->
+      <!-- <div class="why-card reveal reveal-delay-2">
+        <div class="why-icon"><i class="fas fa-shield-alt"></i></div>
+        <h3>NABH Accredited Safety</h3>
+        <p>Rigorous infection control, sterilisation protocols, and patient safety measures certified to the highest national standards.</p>
+      </div> -->
+      <div class="why-card reveal reveal-delay-1">
+        <div class="why-icon"><i class="fas fa-phone-alt"></i></div>
+        <h3>24/7 Emergency Response</h3>
+        <p>Our rapid response teams and helplines operate around the clock, ensuring help is always just one call away.</p>
+      </div>
+      <div class="why-card reveal reveal-delay-2">
+        <div class="why-icon"><i class="fas fa-language"></i></div>
+        <h3>Multilingual Support</h3>
+        <p>We communicate in Hindi, English and more — making sure language is never a barrier to receiving quality care.</p>
+      </div>
+      <!-- <div class="why-card reveal reveal-delay-3">
+        <div class="why-icon"><i class="fas fa-wallet"></i></div>
+        <h3>Transparent Pricing</h3>
+        <p>No hidden fees. Clear billing, cashless insurance tie-ups, and flexible payment options designed to ease your financial burden.</p>
+      </div> -->
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ FOOTER ═══════════════════ -->
+<footer id="contact">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <div class="footer-logo-icon"><i class="fas fa-heartbeat"></i></div>
+        <div class="footer-logo-text">Sanje<span>evni</span></div>
+      </div>
+      <p>Healing with heart since 1999. Sanjeevni is committed to delivering world-class healthcare with compassion, transparency, and the latest medical technology.</p>
+      <div class="social-icons">
+        <a href="#"><i class="fab fa-facebook-f"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-youtube"></i></a>
+        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="#"><i class="fas fa-chevron-right"></i>Home</a></li>
+        <li><a href="#about"><i class="fas fa-chevron-right"></i>About Us</a></li>
+        <li><a href="#services"><i class="fas fa-chevron-right"></i>Services</a></li>
+        <li><a href="#doctors"><i class="fas fa-chevron-right"></i>Our Doctors</a></li>
+        <li><a href="#why"><i class="fas fa-chevron-right"></i>Why Choose Us</a></li>
+        <!-- <li><a href="#"><i class="fas fa-chevron-right"></i>Book Appointment</a></li> -->
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Departments</h4>
+      <ul>
+        <li><a href="#"><i class="fas fa-chevron-right"></i>Cardiology</a></li>
+        <li><a href="#"><i class="fas fa-chevron-right"></i>Neurology</a></li>
+        <li><a href="#"><i class="fas fa-chevron-right"></i>Orthopaedics</a></li>
+        <li><a href="#"><i class="fas fa-chevron-right"></i>Oncology</a></li>
+        <li><a href="#"><i class="fas fa-chevron-right"></i>Geriatric Care</a></li>
+        <li><a href="#"><i class="fas fa-chevron-right"></i>Ophthalmology</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col" id="contact">
+      <h4>Contact & Emergency</h4>
+      <div class="contact-item">
+        <i class="fas fa-map-marker-alt"></i>
+        <!-- <span>Plot 14, Sector 7, Andheri (West),<br>Mumbai, Maharashtra 400058</span> -->
+      </div>
+      <div class="contact-item">
+        <i class="fas fa-envelope"></i>
+        <span>care@sanjeevni.in</span>
+      </div>
+      <div class="contact-item">
+        <i class="fas fa-phone"></i>
+        <!-- <span>+91 22 4567 8900</span> -->
+      </div>
+      <div class="emergency-box">
+        <div class="label"><i class="fas fa-ambulance" style="margin-right:5px"></i>Emergency Helpline no.</div>
+        <!-- <div class="number">108 / 1800-SANJ-999</div> -->
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span>© 2025 Sanjeevni Hospital. All rights reserved.</span>
+    <span>
+      <a href="#">Privacy Policy</a> &nbsp;·&nbsp;
+      <a href="#">Terms of Use</a> &nbsp;·&nbsp;
+      <a href="#">Sitemap</a>
+    </span>
+  </div>
+</footer>
+
+<!-- ═══════════════════ PATIENT LOGIN MODAL ═══════════════════ -->
+<div class="modal-overlay" id="patientModal" onclick="closeOnOverlay(event,'patientModal')">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h2><i class="fas fa-user-injured" style="margin-right:10px;color:var(--teal-light)"></i>Patient Login</h2>
+        <p>Secure access to your health records & appointments</p>
+      </div>
+      <button class="modal-close" onclick="closeModal('patientModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="patientId"><i class="fas fa-id-card" style="color:var(--teal);margin-right:6px"></i>Patient ID</label>
+        <input type="text" id="patientId" placeholder="e.g. SANJ-2024-00123">
+      </div>
+      <div class="otp-row">
+        <div class="form-group">
+          <label for="otpField"><i class="fas fa-shield-alt" style="color:var(--teal);margin-right:6px"></i>OTP</label>
+          <input type="text" id="otpField" placeholder="Enter 6-digit OTP" maxlength="6">
+        </div>
+        <button class="send-otp-btn" onclick="sendOtp()">Send OTP</button>
+      </div>
+      <button class="btn-submit" onclick="closeModal('patientModal')">
+        <i class="fas fa-sign-in-alt" style="margin-right:8px"></i>Access My Records
+      </button>
+      <p class="modal-note"><i class="fas fa-lock" style="margin-right:5px;color:var(--teal)"></i>Your data is encrypted and 100% secure</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ STAFF LOGIN MODAL ═══════════════════ -->
+<div class="modal-overlay" id="staffModal" onclick="closeOnOverlay(event,'staffModal')">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h2><i class="fas fa-user-md" style="margin-right:10px;color:var(--teal-light)"></i>Staff Login</h2>
+        <p>Authorised personnel only</p>
+      </div>
+      <button class="modal-close" onclick="closeModal('staffModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="tab-row">
+        <button class="tab-btn active" onclick="switchTab('doctor')">
+          <i class="fas fa-stethoscope" style="margin-right:6px"></i>Login as Doctor
+        </button>
+        <button class="tab-btn" onclick="switchTab('employee')">
+          <i class="fas fa-id-badge" style="margin-right:6px"></i>Login as Employee
+        </button>
+      </div>
+
+      <div class="tab-pane active" id="tab-doctor">
+        <div class="form-group">
+          <label><i class="fas fa-user" style="color:var(--teal);margin-right:6px"></i>Doctor Username / ID</label>
+          <input type="text" placeholder="DR-SANJ-0001">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-lock" style="color:var(--teal);margin-right:6px"></i>Password</label>
+          <input type="password" placeholder="Enter your password">
+        </div>
+        <button class="btn-submit" onclick="closeModal('staffModal')">
+          <i class="fas fa-sign-in-alt" style="margin-right:8px"></i>Login as Doctor
+        </button>
+      </div>
+
+      <div class="tab-pane" id="tab-employee">
+        <div class="form-group">
+          <label><i class="fas fa-user" style="color:var(--teal);margin-right:6px"></i>Employee Username / ID</label>
+          <input type="text" placeholder="EMP-SANJ-0001">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-lock" style="color:var(--teal);margin-right:6px"></i>Password</label>
+          <input type="password" placeholder="Enter your password">
+        </div>
+        <button class="btn-submit" onclick="closeModal('staffModal')" style="background:linear-gradient(135deg,var(--navy),#1a3a5c)">
+          <i class="fas fa-sign-in-alt" style="margin-right:8px"></i>Login as Employee
+        </button>
+      </div>
+
+      <p class="modal-note"><i class="fas fa-shield-alt" style="margin-right:5px;color:var(--teal)"></i>Secured by hospital-grade encryption</p>
+    </div>
+  </div>
+</div>
+
+
+<script src="script.js"></script>
+</body>
+</html>
