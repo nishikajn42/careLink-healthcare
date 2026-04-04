@@ -54,22 +54,6 @@
     document.getElementById('tab-' + role).classList.add('active');
   }
 
-  // ── OTP ───────────────────────────────────────
-  function sendOtp() {
-    const pid = document.getElementById('patientId').value.trim();
-    if(!pid) { alert('Please enter your Patient ID first.'); return; }
-    const btn = event.currentTarget;
-    btn.textContent = 'Sent ✓';
-    btn.style.background = 'var(--teal)';
-    btn.style.color = 'white';
-    btn.disabled = true;
-    setTimeout(() => {
-      btn.textContent = 'Resend';
-      btn.style.background = '';
-      btn.style.color = '';
-      btn.disabled = false;
-    }, 30000);
-  }
 
   // ── Scroll Reveal ─────────────────────────────
   const observer = new IntersectionObserver(entries => {
@@ -110,3 +94,66 @@
   window.addEventListener('load',   drawLines);
   window.addEventListener('resize', drawLines);
   setTimeout(drawLines, 300);
+
+
+// =========================================
+// PROTOTYPE CREDENTIALS
+// =========================================
+const VALID_EMPLOYEE = { username: "EMP-01", password: "123" };
+
+const VALID_DOCTORS = [
+    { username: "DOC-01", password: "123", name: "Dr. Ramesh Khanna", spec: "Cardiologist" },
+    { username: "DOC-02", password: "123", name: "Dr. Aastha Nayak", spec: "Psychiatrist" },
+    { username: "DOC-03", password: "123", name: "Dr. Aarya Nayak", spec: "Pediatrician" },
+    { username: "DOC-04", password: "123", name: "Dr. Sanchita Jain", spec: "Neurologist" },
+    { username: "DOC-05", password: "123", name: "Dr. Salini Yadav", spec: "General Physician" },
+    { username: "DOC-06", password: "123", name: "Dr. Aashi Singhai", spec: "Orthopedist" },
+    { username: "DOC-07", password: "123", name: "Dr. Vikram Singh", spec: "Dentist" },
+    { username: "DOC-08", password: "123", name: "Dr. Saloni Yadav", spec: "ENT Specialist" }
+];
+
+// --- Staff Flow (Role -> User/Pass -> Login) ---
+function loginStaff() {
+    const user = document.getElementById('staff-username').value.trim();
+    const pass = document.getElementById('staff-password').value.trim();
+
+    if(user === '' || pass === '') {
+        alert('Please enter both Username and Password.');
+        return;
+    }
+
+    // 1. Check Employee Credentials
+    if (currentStaffRole === 'Employee') {
+        if (user === VALID_EMPLOYEE.username && pass === VALID_EMPLOYEE.password) {
+            alert("Employee Login Successful! Redirecting to dashboard...");
+            
+            // Save info so the dashboard knows who logged in
+            localStorage.setItem("activeUser", user);
+            localStorage.setItem("activeRole", "Employee");
+            
+            // REDIRECT COMMAND: This takes you to the dashboard
+            window.location.href = "dashboard.html";
+        } else {
+            alert("Invalid Employee credentials. Try Username: EMP-01 | Pass: 123");
+        }
+    } 
+    // 2. Check Doctor Credentials
+    else if (currentStaffRole === 'Doctor') {
+        const matchedDoctor = VALID_DOCTORS.find(doc => doc.username === user && doc.password === pass);
+
+        if (matchedDoctor) {
+            alert(`Welcome ${matchedDoctor.name}! Redirecting to dashboard...`);
+            
+            // Save info so the dashboard knows which doctor logged in
+            localStorage.setItem("activeUser", matchedDoctor.username);
+            localStorage.setItem("activeRole", "Doctor");
+            localStorage.setItem("activeDocName", matchedDoctor.name); 
+            
+            // REDIRECT COMMAND: This takes you to the dashboard
+            window.location.href = "doctor_dashboard.html";
+           
+        } else {
+            alert("Invalid Doctor credentials. Try a username between DOC-01 and DOC-08 with Password: 123");
+        }
+    }
+}

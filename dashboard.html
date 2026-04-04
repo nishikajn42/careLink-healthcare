@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard - MediCare</title>
+    <link rel="stylesheet" href="doctor_dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <header class="dash-navbar hide-on-print">
+        <div class="dash-brand">
+            <i class="fa-solid fa-stethoscope"></i> MediCare Doctor Panel
+        </div>
+        <nav class="dash-links">
+            <button class="nav-btn active" id="tab-btn-consult" onclick="switchDocTab('view-consultation')">Consultation</button>
+            <button class="nav-btn" id="tab-btn-old" onclick="switchDocTab('view-old-patients')">Old Patients</button>
+            <button class="nav-btn chat-btn" onclick="openChat()"><i class="fa-regular fa-comment-dots"></i> Chat</button>
+        </nav>
+        <div class="dash-user">
+            <span id="doc-profile-name">Dr. Name</span>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </header>
+
+    <main class="dash-container hide-on-print">
+        
+        <div id="view-consultation" class="tab-content active">
+            
+            <div class="search-section card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Start Consultation</h2>
+                    <button class="btn btn-secondary btn-sm" onclick="clearDashboard()"><i class="fa-solid fa-rotate-right"></i> Next Patient</button>
+                </div>
+                
+                <div class="search-box">
+                    <input type="text" id="search-username" placeholder="Enter Patient Username (e.g., rahulsharma45)">
+                    <button class="btn btn-primary" onclick="fetchPatient()"><i class="fa-solid fa-magnifying-glass"></i> Fetch Details</button>
+                </div>
+                <p id="search-error" class="error-msg hidden">Patient not found. Check the username.</p>
+            </div>
+
+            <div id="consultation-section" class="hidden">
+                
+                <div class="patient-info-card card">
+                    <div class="info-grid">
+                        <div><small>Name:</small> <strong id="pat-name">--</strong></div>
+                        <div><small>Age:</small> <strong id="pat-age">--</strong></div>
+                        <div><small>Phone:</small> <strong id="pat-phone">--</strong></div>
+                        <div><small>Symptoms:</small> <strong id="pat-symptoms" style="color: #ef4444;">--</strong></div>
+                    </div>
+                </div>
+
+                <div class="prescription-form card">
+                    <h3>Diagnosis / Observations</h3>
+                    <textarea id="diag-notes" placeholder="Write your diagnosis here..."></textarea>
+
+                    <div class="medication-section">
+                        <div class="med-header">
+                            <h3><i class="fa-solid fa-pills"></i> Prescribe Medicines</h3>
+                            <button class="btn btn-secondary btn-sm" onclick="addMedicineRow()">+ Add Medicine</button>
+                        </div>
+                        <div id="medicines-container"></div>
+                    </div>
+
+                    <h3>Diet & Lifestyle Advice</h3>
+                    <textarea id="diet-notes" placeholder="e.g., Avoid cold water..."></textarea>
+
+                    <div class="follow-up-section">
+                        <h3>Follow-up Visit</h3>
+                        <input type="date" id="follow-up-date" class="border-input">
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" id="btn-save-consult" onclick="saveConsultation()">Save Consultation</button>
+                        <button class="btn btn-print hidden" id="btn-print-rx" onclick="window.print()"><i class="fa-solid fa-print"></i> Print Parcha</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-old-patients" class="tab-content hidden">
+            <div class="card">
+                <h2>My Treated Patients</h2>
+                <p>History of patients you have consulted.</p>
+                
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Username</th>
+                            <th>Patient Name</th>
+                            <th>Diagnosis</th>
+                            <th>Follow-up</th>
+                            <th>Action</th> 
+                        </tr>
+                    </thead>
+                    <tbody id="doc-old-patients-list">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <div class="print-container">
+        <div class="print-header">
+            <div><h1 class="print-hospital-name">MediCare Hospital</h1></div>
+            <div class="print-username-box">ID: <span id="print-username"></span></div>
+        </div>
+        <div class="print-doc-info">
+            <h2 id="print-doc-name">Dr. Name</h2>
+            <p id="print-doc-spec">Specialization</p>
+        </div>
+        <div class="print-patient-info">
+            <div class="p-row"><span>Patient:</span> <span id="print-p-name" class="line"></span></div>
+            <div class="p-row p-split">
+                <div><span>Age:</span> <span id="print-p-age" class="line"></span></div>
+                <div><span>Date:</span> <span id="print-p-date" class="line"></span></div>
+            </div>
+            <div class="p-row"><span>Diagnosis:</span> <span id="print-diag" class="line"></span></div>
+        </div>
+        <div class="print-rx">
+            <h1 class="rx-symbol">Rx</h1>
+            <table class="print-med-table" id="print-med-list">
+                <thead>
+                    <tr><th>Medicine</th><th>Dosage Time</th><th>Instructions</th><th>Duration</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <div class="print-advice"><strong>Advice / Diet:</strong><p id="print-diet"></p></div>
+            <div class="print-followup"><strong>Next Visit:</strong> <span id="print-followup-date"></span></div>
+        </div>
+    </div>
+
+    <div id="chatModal" class="chat-modal hidden">
+        <div class="chat-header"><span>Internal Chat</span><button onclick="closeChat()">X</button></div>
+        <div class="chat-body"><p><em>Welcome to the secure chat.</em></p></div>
+        <div class="chat-input"><input type="text" placeholder="Type message..."><button>Send</button></div>
+    </div>
+
+    <div id="pastRxModal" class="modal-overlay hidden">
+        <div class="modal-content rx-history-card">
+            <div class="modal-header">
+                <h2>Previous Consultation Details</h2>
+                <button class="close-btn" onclick="closePastRx()">&times;</button>
+            </div>
+            <div class="modal-body" id="past-rx-details">
+                </div>
+        </div>
+    </div>
+
+    <script src="doctor_dashboard.js"></script>
+</body>
+</html>

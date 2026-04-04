@@ -1,0 +1,26 @@
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 20px; }
+.dashboard-container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+h2 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+.section { margin-bottom: 20px; padding: 15px; background: #fdfdfd; border: 1px solid #e0e0e0; border-radius: 8px; }
+        .flex-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+        input, select, textarea { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; }
+        .flex-row input, .flex-row select { width: auto; flex: 1; }
+        textarea { height: 80px; resize: vertical; }
+        button { background: #3498db; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #2980b9; }
+        .btn-success { background: #2ecc71; }
+        .btn-success:hover { background: #27ae60; }
+        .btn-print { background: #e67e22; }
+        .btn-print:hover { background: #d35400; }
+        
+        /* Medicine Card Specifics */
+        .medicine-card { border-left: 4px solid #3498db; background: #f9f9f9; padding: 10px; margin-bottom: 10px; }
+        .time-inputs { display: flex; gap: 5px; margin-top: 5px; }
+        
+        /* Print Styles - Only applied during window.print() */
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area { position: absolute; left: 0; top: 0; width: 100%; }
+            .no-print { display: none !important; }
+        }

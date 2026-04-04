@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. Dashboard - CareLink</title>
+    <link rel="stylesheet" href="dr_dashboard.css">
+</head>
+<body>
+
+<div class="dashboard-container">
+    <h2>Dr. Dashboard</h2>
+
+    <div class="section">
+        <h3>1. Patient Details</h3>
+        <div class="flex-row">
+            <input type="text" id="username" placeholder="Enter Patient Username">
+            <button onclick="fetchPatientDetails()">Fetch Details</button>
+        </div>
+        <div id="patient-info" style="display:none; color: #16a085; font-weight: bold;">
+            </div>
+    </div>
+
+    <div id="print-area">
+        <div class="section">
+            <h3>2. Diagnosis</h3>
+            <textarea id="disease" placeholder="Write about the patient's disease/symptoms..."></textarea>
+        </div>
+
+        <div class="section">
+            <h3>3. Prescribe Medicine</h3>
+            <div id="medicines-container"></div>
+            <button class="no-print" onclick="addMedicine()">+ Add Medicine</button>
+        </div>
+
+        <div class="section">
+            <h3>4. Additional Instructions</h3>
+            <div class="flex-row">
+                <input type="text" id="diet" placeholder="Diet Type / Instructions (e.g., Avoid sugar)">
+                <input type="date" id="next-visit" placeholder="Next Visit">
+            </div>
+        </div>
+    </div>
+
+    <div class="flex-row no-print" style="justify-content: flex-end; margin-top: 20px;">
+        <button class="btn-success" onclick="saveRecord()">Save Record</button>
+        <button class="btn-print" onclick="printPrescription()">🖨️ Print Prescription</button>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,83 @@
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+body { background-color: #f0f2f5; }
+
+/* Navbar */
+.dash-navbar { background: #0b1120; color: white; display: flex; justify-content: space-between; padding: 15px 30px; align-items: center; }
+.dash-brand { font-size: 1.2rem; font-weight: bold; }
+.dash-links { display: flex; gap: 10px; }
+.nav-btn { background: transparent; border: none; color: #9ca3af; font-size: 1rem; cursor: pointer; padding: 8px 15px; border-radius: 5px; }
+.nav-btn.active, .nav-btn:hover { background: #1f2937; color: white; }
+.dash-user { display: flex; align-items: center; gap: 15px; }
+.btn-logout { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
+
+/* Main Content */
+.dash-container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.form-card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-top: 20px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.input-group label { display: block; font-size: 0.9rem; color: #4b5563; margin-bottom: 5px; font-weight: 600; }
+.input-group input { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 5px; font-size: 1rem; }
+.full-width { grid-column: span 2; }
+
+/* Assignment Box */
+.assignment-box { background: #eff6ff; border-left: 4px solid #2563eb; padding: 15px; margin-top: 20px; border-radius: 4px; }
+.assignment-box p { margin-bottom: 5px; color: #1e3a8a; }
+.hidden { display: none !important; }
+
+/* Buttons */
+.action-buttons { margin-top: 25px; display: flex; gap: 15px; }
+.btn { padding: 10px 20px; border: none; border-radius: 5px; font-size: 1rem; cursor: pointer; font-weight: 600; }
+.btn-primary { background: #2563eb; color: white; }
+.btn-secondary { background: #4b5563; color: white; }
+.btn-print { background: #16a34a; color: white; }
+
+/* Table */
+table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
+th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+th { background: #f9fafb; color: #374151; }
+
+/* ========================================= */
+/* PRINT STYLES (THE PARCHA)                 */
+/* ========================================= */
+.print-container { display: none; }
+
+@media print {
+    /* Hide the dashboard completely */
+    .hide-on-print { display: none !important; }
+    body { background: white; }
+
+    /* Show and style the parcha */
+    .print-container { 
+        display: block; 
+        width: 100%; 
+        max-width: 800px; 
+        margin: 0 auto; 
+        position: relative;
+        color: #1e3a8a; /* Dark blue theme matching image */
+    }
+
+    .print-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 20px; border-bottom: 3px solid #bfdbfe; }
+    .print-hospital-name { font-size: 2.5rem; color: #1d4ed8; }
+    .print-slogan { font-size: 1rem; color: #64748b; letter-spacing: 2px; }
+    
+    .print-username-box { border: 2px solid #1d4ed8; padding: 5px 15px; font-weight: bold; font-size: 1.2rem; border-radius: 5px; }
+
+    .print-doc-info { margin: 20px 0; }
+    .print-doc-info h2 { font-size: 1.8rem; color: #1e3a8a; }
+    .print-doc-info p { color: #475569; }
+
+    .print-patient-info { margin: 30px 0; font-size: 1.1rem; color: #333; }
+    .p-row { margin-bottom: 15px; display: flex; align-items: flex-end; }
+    .p-row span:first-child { width: 150px; font-weight: bold; color: #64748b; }
+    .line { flex-grow: 1; border-bottom: 1px solid #cbd5e1; padding-bottom: 5px; padding-left: 10px; color: #000; }
+    .p-split { display: flex; gap: 40px; }
+    .p-split div { display: flex; flex: 1; align-items: flex-end; }
+
+    .print-rx { margin-top: 50px; min-height: 400px; }
+    .print-rx h1 { font-size: 5rem; color: #3b82f6; opacity: 0.8; margin-bottom: 20px; }
+
+    .print-footer { position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; padding: 20px 0; border-top: 3px solid #bfdbfe; font-weight: bold; color: #1d4ed8; display: flex; justify-content: center; gap: 40px; }
+}
