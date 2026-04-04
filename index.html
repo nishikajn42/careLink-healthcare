@@ -390,35 +390,34 @@
 </footer>
 
 <!-- ═══════════════════ PATIENT LOGIN MODAL ═══════════════════ -->
-<div class="modal-overlay" id="patientModal" onclick="closeOnOverlay(event,'patientModal')">
+<div class="modal-overlay" id="patientModal" onclick="closeOnOverlay(event, 'patientModal')">
   <div class="modal">
     <div class="modal-header">
       <div>
         <h2><i class="fas fa-user-injured" style="margin-right:10px;color:var(--teal-light)"></i>Patient Login</h2>
-        <p>Secure access to your health records & appointments</p>
+        <p>Enter your Patient ID and OTP</p>
       </div>
       <button class="modal-close" onclick="closeModal('patientModal')"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body">
-      <div class="form-group">
-        <label for="patientId"><i class="fas fa-id-card" style="color:var(--teal);margin-right:6px"></i>Patient ID</label>
-        <input type="text" id="patientId" placeholder="e.g. SANJ-2024-00123">
-      </div>
-      <div class="otp-row">
-        <div class="form-group">
-          <label for="otpField"><i class="fas fa-shield-alt" style="color:var(--teal);margin-right:6px"></i>OTP</label>
-          <input type="text" id="otpField" placeholder="Enter 6-digit OTP (hint: 123456)" maxlength="6">
+        <form id="patient-login-form" onsubmit="loginPatient(event)">
+            <div class="form-group">
+                <label><i class="fas fa-id-card" style="color:var(--teal);margin-right:6px"></i>Patient ID</label>
+                <input type="text" id="patientId" placeholder="e.g., HIM90-1234" required>
+              </div>
+            <div class="form-group">
+                <label><i class="fas fa-lock" style="color:var(--teal);margin-right:6px"></i>OTP / Password</label>
+                <input type="password" id="otp" placeholder="Enter OTP (123456)" required>
+            </div>
+            <button type="submit" id="patient-login-btn" class="btn-submit" style="width: 100%; margin-top: 10px;">
+                <i class="fas fa-sign-in-alt" style="margin-right:8px"></i>Login to Dashboard
+              </button>
+              <p id="patient-login-error" style="color: #e63946; display: none; margin-top: 15px; font-weight: bold; text-align: center;"></p>
+            </form>
+          </div>
         </div>
-        <!-- <button class="send-otp-btn" onclick="sendOtp()">Send OTP</button> -->
       </div>
-      <button class="btn-submit" onclick="closeModal('patientModal')">
-        <i class="fas fa-sign-in-alt" style="margin-right:8px"></i>Access My Records
-      </button>
-      <p class="modal-note"><i class="fas fa-lock" style="margin-right:5px;color:var(--teal)"></i>Your data is encrypted and 100% secure</p>
-    </div>
-  </div>
-</div>
-
+      
 <!-- ═══════════════════ STAFF LOGIN MODAL ═══════════════════ -->
 <div class="modal-overlay" id="staffModal" onclick="closeOnOverlay(event,'staffModal')">
   <div class="modal">
@@ -431,22 +430,22 @@
     </div>
     <div class="modal-body">
       <div class="tab-row">
-        <button class="tab-btn active" onclick="switchTab('doctor')">
+        <button class="tab-btn active" onclick="switchTab('doctor', this)">
           <i class="fas fa-stethoscope" style="margin-right:6px"></i>Login as Doctor
         </button>
-        <button class="tab-btn" onclick="switchTab('employee')">
+        <button class="tab-btn" onclick="switchTab('employee', this)">
           <i class="fas fa-id-badge" style="margin-right:6px"></i>Login as Employee
         </button>
       </div>
 
       <div class="tab-pane active" id="tab-doctor">
         <div class="form-group">
-          <label><i class="fas fa-user" style="color:var(--teal);margin-right:6px"></i>Doctor Username / ID</label>
+          <label><i class="fas fa-user" style="color:var(--teal);margin-right:6px"></i>Doctor Username</label>
           <input type="text" id="doc-username" placeholder="DOC-01">
         </div>
         <div class="form-group">
           <label><i class="fas fa-lock" style="color:var(--teal);margin-right:6px"></i>Password</label>
-          <input type="password" id="doc-password" placeholder="Enter your password">
+          <input type="password" id="doc-password" placeholder="Enter password">
         </div>
         <button class="btn-submit" onclick="loginStaff('Doctor')">
           <i class="fas fa-sign-in-alt" style="margin-right:8px"></i>Login as Doctor
@@ -455,19 +454,17 @@
 
       <div class="tab-pane" id="tab-employee">
         <div class="form-group">
-          <label><i class="fas fa-user" style="color:var(--teal);margin-right:6px"></i>Employee Username / ID</label>
+          <label><i class="fas fa-user" style="color:var(--teal);margin-right:6px"></i>Employee Username</label>
           <input type="text" id="emp-username" placeholder="EMP-01">
         </div>
         <div class="form-group">
           <label><i class="fas fa-lock" style="color:var(--teal);margin-right:6px"></i>Password</label>
-          <input type="password" id="emp-password" placeholder="Enter your password">
+          <input type="password" id="emp-password" placeholder="Enter password">
         </div>
         <button class="btn-submit" onclick="loginStaff('Employee')" style="background:linear-gradient(135deg,var(--navy),#1a3a5c)">
           <i class="fas fa-sign-in-alt" style="margin-right:8px"></i>Login as Employee
         </button>
       </div>
-
-      <p class="modal-note"><i class="fas fa-shield-alt" style="margin-right:5px;color:var(--teal)"></i>Secured by hospital-grade encryption</p>
     </div>
   </div>
 </div>
@@ -479,5 +476,6 @@
 
 <script type="module" src="beti.js"></script>
 <script src="script.js"></script>
+<script type="module" src="patient_auth.js"></script>
 </body>
 </html>

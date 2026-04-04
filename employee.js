@@ -1,25 +1,8 @@
-// employee.js / dr_dashboard.js
-import { firebaseConfig } from './firebase-config.js'; // Config yahan se aayega
+import { firebaseConfig } from './firebase-config.js';
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-// Initialize using the imported config
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-
-const firebaseConfig = {
-    apiKey: "AIzaSyBkG-MkMl9dT92MsS4rzHFv0PCmd_XuFug",
-    authDomain: "carelink-c5e57.firebaseapp.com",
-    projectId: "carelink-c5e57",
-    storageBucket: "carelink-c5e57.firebasestorage.app",
-    messagingSenderId: "233978283967",
-    appId: "1:233978283967:web:116a9c40d443364947830a"
-};
-
+// 1. Initialize Firebase using central config
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
@@ -71,7 +54,7 @@ function generateUsername(name, age) {
     return `${cleanName}${age}-${randomNum}`; 
 }
 
-// 1. Assign Doctor Button Click
+// Assign Doctor Button Click
 document.getElementById("assignBtn").addEventListener("click", function() {
     const name = document.getElementById("pName").value;
     const age = document.getElementById("pAge").value;
@@ -107,7 +90,7 @@ document.getElementById("assignBtn").addEventListener("click", function() {
     document.getElementById("actionSection").style.display = "block";
 });
 
-// 2. Print Receipt Logic (A4 Format)
+// Print Receipt Logic
 document.getElementById("printBtn").addEventListener("click", function() {
     if(!currentPatientData) return;
     
@@ -177,7 +160,7 @@ document.getElementById("printBtn").addEventListener("click", function() {
     printWindow.document.close();
 });
 
-// 3. Save to Firebase
+// Save to Firebase
 document.getElementById("patientForm").addEventListener("submit", async function(e) {
     e.preventDefault();
     if(!currentPatientData) return;
@@ -205,8 +188,6 @@ document.getElementById("patientForm").addEventListener("submit", async function
         modal.style.display = "none";
         
         alert(`Successfully Saved!`);
-        
-        // Refresh Dashboard to show new data immediately
         updateDashboard();
         
     } catch (error) {
@@ -217,10 +198,9 @@ document.getElementById("patientForm").addEventListener("submit", async function
     }
 });
 
-// 4. Update Dashboard Logic (REAL-TIME FETCH)
+// Update Dashboard Logic
 async function updateDashboard() {
     try {
-        // Fetch all historical and current data from Firebase, ordered by time
         const q = query(collection(db, "patients"), orderBy("timestamp", "desc"));
         const snapshot = await getDocs(q);
         
@@ -234,14 +214,11 @@ async function updateDashboard() {
             const data = doc.data();
             total++;
             
-            // Calculate Old vs New
             if(data.type === "Old") { oldP++; } 
             else { newP++; }
             
-            // Calculate Hourly Trend
             if(data.hour !== undefined) { hourlyData[data.hour]++; }
 
-            // Populate Table (Show only 6 most recent records)
             if(total <= 6) {
                 tableHTML += `<tr>
                     <td>
@@ -257,13 +234,11 @@ async function updateDashboard() {
 }
         });
 
-        // Update Stats Counters
         document.getElementById("totalCount").innerText = total;
         document.getElementById("newCount").innerText = newP;
         document.getElementById("oldCount").innerText = oldP;
         document.getElementById("patientTableBody").innerHTML = tableHTML;
 
-        // Render Charts with fresh data
         renderCharts(newP, oldP, hourlyData);
 
     } catch (error) {
@@ -271,9 +246,8 @@ async function updateDashboard() {
     }
 }
 
-// 5. Render Charts dynamically
+// Render Charts
 function renderCharts(newCount, oldCount, hourlyData) {
-    // Destroy previous charts so they don't overlap when re-drawn
     if(ratioChartInstance) ratioChartInstance.destroy();
     if(trendChartInstance) trendChartInstance.destroy();
 
@@ -311,5 +285,4 @@ function renderCharts(newCount, oldCount, hourlyData) {
     });
 }
 
-// Initialize Dashboard when page loads
 window.onload = updateDashboard;

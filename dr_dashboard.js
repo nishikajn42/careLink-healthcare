@@ -1,31 +1,15 @@
-// employee.js / dr_dashboard.js
-import { firebaseConfig } from './firebase-config.js'; // Config yahan se aayega
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-
-// Initialize using the imported config
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+import { firebaseConfig } from './firebase-config.js';
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getFirestore, collection, getDocs, query, where, updateDoc, doc, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-// Wahi same Firebase configuration!
-const firebaseConfig = {
-    apiKey: "AIzaSyBkG-MkMl9dT92MsS4rzHFv0PCmd_XuFug",
-    authDomain: "carelink-c5e57.firebaseapp.com",
-    projectId: "carelink-c5e57",
-    storageBucket: "carelink-c5e57.firebasestorage.app",
-    messagingSenderId: "233978283967",
-    appId: "1:233978283967:web:116a9c40d443364947830a"
-};
-
+// Initialize using the imported central config
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // Authentication Check
-const activeUser = localStorage.getItem("activeUser"); // DOC-01
-const activeRole = localStorage.getItem("activeRole"); // Doctor
-const docName = localStorage.getItem("activeDocName"); // Dr. Ramesh Khanna
+const activeUser = localStorage.getItem("activeUser"); 
+const activeRole = localStorage.getItem("activeRole"); 
+const docName = localStorage.getItem("activeDocName"); 
 
 if (!activeUser || activeRole !== "Doctor") {
     window.location.href = "index.html"; 
@@ -44,9 +28,7 @@ window.logout = function() {
 let currentPatientDocId = null;
 let currentPatientData = null;
 
-// ==========================================
-// 1. CLEAR DASHBOARD (RESET)
-// ==========================================
+// CLEAR DASHBOARD (RESET)
 window.clearDashboard = function() {
     document.getElementById('search-username').value = '';
     document.getElementById('search-error').classList.add('hidden');
@@ -64,9 +46,7 @@ window.clearDashboard = function() {
     currentPatientData = null;
 };
 
-// ==========================================
-// 2. FETCH PATIENT FROM FIREBASE
-// ==========================================
+// FETCH PATIENT FROM FIREBASE
 window.fetchPatient = async function() {
     const username = document.getElementById('search-username').value.trim().toUpperCase();
     const errorMsg = document.getElementById('search-error');
@@ -77,18 +57,16 @@ window.fetchPatient = async function() {
     fetchBtn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Fetching...";
     
     try {
-        // Query Firebase: Find patient where username == searched ID
         const q = query(collection(db, "patients"), where("username", "==", username));
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
             const patientDoc = querySnapshot.docs[0];
-            currentPatientDocId = patientDoc.id; // Needed for updating later
+            currentPatientDocId = patientDoc.id;
             currentPatientData = patientDoc.data();
 
             errorMsg.classList.add('hidden');
             
-            // Populate UI
             document.getElementById('pat-name').innerText = currentPatientData.name;
             document.getElementById('pat-age').innerText = currentPatientData.age;
             document.getElementById('pat-phone').innerText = currentPatientData.phone;
@@ -96,7 +74,6 @@ window.fetchPatient = async function() {
 
             document.getElementById('consultation-section').classList.remove('hidden');
             
-            // Add one blank medicine row by default
             if(document.querySelectorAll('.medicine-row').length === 0) { 
                 addMedicineRow(); 
             }
@@ -112,9 +89,7 @@ window.fetchPatient = async function() {
     }
 };
 
-// ==========================================
-// 3. MEDICINE ROWS BUILDER
-// ==========================================
+// MEDICINE ROWS BUILDER
 window.addMedicineRow = function() {
     const container = document.getElementById('medicines-container');
     const rowId = `med-${Date.now()}`; 
@@ -147,9 +122,7 @@ window.removeMedicineRow = function(rowId) {
     document.getElementById(rowId).remove(); 
 };
 
-// ==========================================
-// 4. SAVE CONSULTATION TO FIREBASE
-// ==========================================
+// SAVE CONSULTATION TO FIREBASE
 window.saveConsultation = async function() {
     if(!currentPatientDocId) return;
 
@@ -161,7 +134,6 @@ window.saveConsultation = async function() {
     const followUp = document.getElementById('follow-up-date').value;
     const todayStr = new Date().toLocaleDateString();
 
-    // Extract medicines
     const medicineRows = document.querySelectorAll('.medicine-row');
     let medicinesList = [];
     medicineRows.forEach(row => {
@@ -176,7 +148,6 @@ window.saveConsultation = async function() {
         }
     });
 
-    // The data to save inside the patient's document
     const prescriptionData = {
         doctor: docName,
         date: todayStr,
@@ -187,7 +158,6 @@ window.saveConsultation = async function() {
     };
 
     try {
-        // Update the existing patient document in Firebase
         const patientRef = doc(db, "patients", currentPatientDocId);
         await updateDoc(patientRef, {
             prescription: prescriptionData
@@ -195,11 +165,9 @@ window.saveConsultation = async function() {
 
         alert("✅ Consultation Saved Successfully! You can now print the Parcha.");
         
-        // Switch buttons
         saveBtn.classList.add('hidden');
         document.getElementById('btn-print-rx').classList.remove('hidden');
         
-        // Setup the print view
         setupPrintTemplate(currentPatientData, prescriptionData);
 
     } catch (error) {
@@ -210,9 +178,7 @@ window.saveConsultation = async function() {
     }
 };
 
-// ==========================================
-// 5. SETUP PRINT TEMPLATE
-// ==========================================
+// SETUP PRINT TEMPLATE
 function setupPrintTemplate(patient, rx) {
     document.getElementById('print-username').innerText = patient.username;
     document.getElementById('print-doc-name').innerText = docName;
@@ -223,7 +189,6 @@ function setupPrintTemplate(patient, rx) {
     document.getElementById('print-p-date').innerText = rx.date;
     document.getElementById('print-diag').innerText = rx.diagnosis || "N/A";
 
-    // Build Medicine Table for Print
     const medTableBody = document.querySelector('#print-med-list tbody');
     medTableBody.innerHTML = '';
     rx.medicines.forEach(med => {
@@ -239,7 +204,6 @@ function setupPrintTemplate(patient, rx) {
 
     document.getElementById('print-diet').innerText = rx.diet || "Normal Diet";
     
-    // Format date nicely if exists
     let fDate = rx.followUp;
     if(fDate) {
         let dateObj = new Date(fDate);
@@ -248,15 +212,12 @@ function setupPrintTemplate(patient, rx) {
     document.getElementById('print-followup-date').innerText = fDate || "As needed";
 }
 
-// ==========================================
-// 6. LOAD OLD PATIENTS HISTORY (FIREBASE)
-// ==========================================
+// LOAD OLD PATIENTS HISTORY
 window.loadOldPatients = async function() {
     const listEl = document.getElementById('doc-old-patients-list');
     listEl.innerHTML = "<tr><td colspan='5' style='text-align: center;'>Loading...</td></tr>"; 
 
     try {
-        // Get ALL patients, ordered by newest first
         const q = query(collection(db, "patients"), orderBy("timestamp", "desc"));
         const snapshot = await getDocs(q);
         
@@ -265,7 +226,6 @@ window.loadOldPatients = async function() {
 
         snapshot.forEach((doc) => {
             const p = doc.data();
-            // Filter: Only show if they have a prescription AND doctor matches current login
             if (p.prescription && p.prescription.doctor === docName) {
                 count++;
                 let fDate = p.prescription.followUp ? new Date(p.prescription.followUp).toLocaleDateString() : 'None';

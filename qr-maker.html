@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sanjeevni | Factory QR Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; text-align: center; padding: 20px; background: #f4f7f6; }
+        .box { background: white; padding: 20px; border-radius: 12px; max-width: 350px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        input { width: 90%; padding: 12px; margin: 15px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; }
+        button { background: #00766c; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-size: 16px; width: 100%; font-weight: bold; }
+        #qrcode { margin-top: 25px; display: flex; justify-content: center; }
+        .hint { color: #666; font-size: 0.9em; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2 style="color: #00766c; margin-top: 0;">Factory QR Maker</h2>
+        <p style="font-size: 0.9em; color: #555;">(Apne phone par chalayein)</p>
+        
+        <input type="text" id="medName" placeholder="Enter exact medicine name...">
+        <button onclick="generateQR()">Generate Strip QR</button>
+        
+        <div id="qrcode"></div>
+        <p class="hint">Laptop ke camera ke aage yeh QR dikhayein.</p>
+    </div>
+
+    <script>
+        function generateQR() {
+            const name = document.getElementById('medName').value.trim();
+            if(!name) { alert("Dawai ka naam likhiye!"); return; }
+            
+            // Dashboard yahi exact ID dhoondh raha hai (spaces ko underscore banakar)
+            // Example: "Paracetamol 500mg" ban jayega "paracetamol_500mg"
+            const expectedId = name.toLowerCase().replace(/\s+/g, '_');
+            
+            // Yeh JSON data QR ke andar chhupa hoga
+            const qrData = JSON.stringify({ 
+                id: expectedId, 
+                name: name 
+            });
+            
+            // Purana QR clear karein aur naya banayein
+            document.getElementById('qrcode').innerHTML = "";
+            new QRCode(document.getElementById("qrcode"), { 
+                text: qrData, 
+                width: 220, 
+                height: 220,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        }
+    </script>
+</body>
+</html>

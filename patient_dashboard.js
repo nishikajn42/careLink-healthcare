@@ -1,221 +1,143 @@
-// employee.js / dr_dashboard.js
-import { firebaseConfig } from './firebase-config.js'; // Config yahan se aayega
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-
-// Initialize using the imported config
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-
 import { firebaseConfig } from './firebase-config.js';
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-// 1. Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// 2. Authentication & Setup
-const activePatientUser = localStorage.getItem("activeUser"); // e.g. HIM90-2632
-if (!activePatientUser) {
-    window.location.href = "index.html"; // Redirect agar login nahi hai
+const activePatientUser = localStorage.getItem("activeUser"); 
+if (!activePatientUser) window.location.href = "index.html"; 
+
+let html5QrCode;
+window.expectedMedID = null;
+window.expectedMedName = null;
+window.expectedStorageKey = null; // Specially added to track exact day & medicine
+
+function speakBeti(text) {
+    const bubble = document.getElementById('beti-bubble');
+    bubble.innerHTML = `<i class="fa-solid fa-robot"></i> ${text}`;
+    const synth = window.speechSynthesis;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'hi-IN';
+    utterance.rate = 0.9;
+    synth.speak(utterance);
 }
 
-document.getElementById('nav-patient-id').innerText = `ID: ${activePatientUser}`;
-
-// Logout Logic
-window.logoutPatient = function() {
-    localStorage.removeItem("activeUser");
-    localStorage.removeItem("activeRole");
-    window.location.href = "index.html";
-};
-
-// =====================================
-// 3. PROFILE PHOTO UPLOAD LOGIC (Local Storage for speed)
-// =====================================
-window.uploadProfilePhoto = function(event) {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const imageData = e.target.result;
-            document.getElementById('profile-img').src = imageData;
-            localStorage.setItem(`profilePhoto_${activePatientUser}`, imageData);
-        };
-        reader.readAsDataURL(file);
-    }
-};
-
-// Load saved photo on startup
-const savedPhoto = localStorage.getItem(`profilePhoto_${activePatientUser}`);
-if (savedPhoto) {
-    document.getElementById('profile-img').src = savedPhoto;
-}
-
-// =====================================
-// 4. FIREBASE DATA FETCHING LOGIC
-// =====================================
 async function loadPatientData() {
     try {
-        // Firebase se us specific patient ka data nikalna
+        document.getElementById('nav-patient-id').innerText = `ID: ${activePatientUser}`;
         const q = query(collection(db, "patients"), where("username", "==", activePatientUser));
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
             const patientData = querySnapshot.docs[0].data();
 
-            // Set Profile Details on UI
-            document.getElementById('p-name').innerText = patientData.name;
-            document.getElementById('p-age-val').innerText = patientData.age;
-            
-            // Check if prescription exists
+            document.getElementById('p-name').innerText = patientData.name || "Unknown";
+            document.getElementById('p-age-val').innerText = `Age: ${patientData.age || "--"}`;
+            document.getElementById('p-doctor').innerText = patientData.doctorName || "Assigned Doctor";
+
             if (patientData.prescription && patientData.prescription.medicines) {
-                processMedicines(patientData.prescription.medicines);
+                // NAYA LOGIC: Default 3 din agar doctor ne nahi diya hai
+                const durationDays = patientData.prescription.durationDays || 3; 
+                renderMultiDayGrid(patientData.prescription.medicines, durationDays);
             } else {
-                showEmptyState("Doctor is yet to upload your prescription.");
+                document.getElementById('dose-grid-container').innerHTML = "<p>Koi dawai assign nahi hui hai.</p>";
             }
-        } else {
-            showEmptyState("No patient record found in database.");
         }
     } catch (error) {
-        console.error("Error fetching data:", error);
-        showEmptyState("Error connecting to server.");
+        console.error("Error:", error);
     }
 }
 
-// =====================================
-// 5. TIME CALCULATION & REMINDER LOGIC
-// =====================================
-function processMedicines(medicinesList) {
-    const timeMap = {
-        "Morning": "09:00",
-        "Afternoon": "14:00",
-        "Night": "20:00" // 8 PM
-    };
+// THE NEW CALENDAR MAP LOGIC
+function renderMultiDayGrid(medicinesList, durationDays) {
+    const container = document.getElementById('dose-grid-container');
+    container.innerHTML = ""; 
 
-    let todaysSchedule = [];
-
-    // Frequency (1-0-1 etc.) ko actual time mein convert karna
-    medicinesList.forEach(med => {
-        let times = [];
-        let f = med.freq.toLowerCase();
+    // Poore course ke liye loop chalayenge
+    for(let day = 1; day <= durationDays; day++) {
         
-        if(f.includes("morning & night") || f.includes("1 - 0 - 1") || f.includes("twice")) {
-            times.push(timeMap["Morning"], timeMap["Night"]);
-        } else if(f.includes("thrice") || f.includes("1 - 1 - 1")) {
-            times.push(timeMap["Morning"], timeMap["Afternoon"], timeMap["Night"]);
-        } else if(f.includes("night") || f.includes("0 - 0 - 1")) {
-            times.push(timeMap["Night"]);
-        } else {
-            times.push(timeMap["Morning"]); // Default
-        }
+        // Day ka header lagana optional hai, par accha lagega
+        const dayHeader = document.createElement('h4');
+        dayHeader.style.gridColumn = "1 / -1"; // Takes full width
+        dayHeader.style.color = "#00766c";
+        dayHeader.style.borderBottom = "1px solid #ddd";
+        dayHeader.innerText = `Day ${day}`;
+        container.appendChild(dayHeader);
 
-        // List mein add karna
-        times.forEach(t => {
-            todaysSchedule.push({
-                time: t,
-                name: med.name,
-                instruction: med.instruction,
-                qty: "1 Dose"
-            });
-        });
-    });
+        medicinesList.forEach((med, index) => {
+            // Har din ki har dawai ke liye ek unique key
+            const storageKey = `taken_${activePatientUser}_day_${day}_med_${index}`;
+            const isTaken = localStorage.getItem(storageKey) === 'true';
+            
+            const statusClass = isTaken ? 'taken' : 'pending';
+            const generatedId = med.name.toLowerCase().replace(/\s+/g, '_');
 
-    // Time ke hisaab se Sort karna (Subah se Raat tak)
-    todaysSchedule.sort((a, b) => a.time.localeCompare(b.time));
-    populateDashboard(todaysSchedule);
-}
-
-// =====================================
-// 6. POPULATE UI (NEXT & UPCOMING)
-// =====================================
-function populateDashboard(schedule) {
-    const now = new Date();
-    const currentHours = now.getHours().toString().padStart(2, '0');
-    const currentMinutes = now.getMinutes().toString().padStart(2, '0');
-    const currentTime = `${currentHours}:${currentMinutes}`;
-
-    let nextMed = null;
-    let upcomingMeds = [];
-    let scheduleTableHTML = "";
-
-    schedule.forEach(med => {
-        let isPast = med.time < currentTime;
-        let statusBadge = isPast ? '<span class="status-badge taken">Taken</span>' : '<span class="status-badge">Pending</span>';
-        
-        // Table row build karna
-        scheduleTableHTML += `
-            <tr>
-                <td style="font-weight: bold; color: #0f2942;">${formatAMPM(med.time)}</td>
-                <td>${med.name} <br> <small style="color: #666;">${med.instruction}</small></td>
-                <td>${med.qty}</td>
-                <td>${statusBadge}</td>
-            </tr>
-        `;
-
-        // Next aur Upcoming separate karna
-        if (!isPast) {
-            if (!nextMed) {
-                nextMed = med; // Immediate next medicine
-            } else {
-                upcomingMeds.push(med); // Uske baad wali saari medicines
-            }
-        }
-    });
-
-    document.getElementById('schedule-tbody').innerHTML = scheduleTableHTML;
-
-    // NEXT REMINDER Box Update
-    if (nextMed) {
-        document.getElementById('next-med-time').innerText = formatAMPM(nextMed.time);
-        document.getElementById('next-med-name').innerText = nextMed.name;
-        document.getElementById('next-med-instruction').innerText = nextMed.instruction;
-    } else {
-        document.getElementById('next-med-time').innerText = "Done!";
-        document.getElementById('next-med-name').innerText = "All medicines taken";
-        document.getElementById('next-med-instruction').innerText = "Rest well for today. See you tomorrow!";
-    }
-
-    // UPCOMING REMINDERS List Update
-    const upcomingContainer = document.getElementById('upcoming-list-container');
-    if (upcomingMeds.length > 0) {
-        let upHTML = "";
-        upcomingMeds.forEach(m => {
-            upHTML += `
-                <div class="upcoming-box">
-                    <div>
-                        <div class="up-med">${m.name}</div>
-                        <small style="color:#666;">${m.instruction}</small>
-                    </div>
-                    <div class="up-time">${formatAMPM(m.time)}</div>
-                </div>
+            const box = document.createElement('div');
+            box.className = `dose-box ${statusClass}`;
+            box.innerHTML = `
+                <h4 style="margin: 0; font-size: 14px;">${med.name}</h4>
+                <p style="font-size:11px; margin-top:5px; color:#666;">${med.instruction || med.freq}</p>
             `;
+            
+            if(!isTaken) {
+                // Hum current Day aur specific medicine dono bhejenge
+                box.onclick = () => window.triggerScanner(generatedId, med.name, storageKey);
+            }
+
+            container.appendChild(box);
         });
-        upcomingContainer.innerHTML = upHTML;
-    } else {
-        upcomingContainer.innerHTML = "<p style='text-align:center; color:#666; padding: 20px 0;'>No other upcoming medicines today.</p>";
     }
 }
 
-// State jab koi data na ho
-function showEmptyState(message) {
-    document.getElementById('next-med-time').innerText = "--:--";
-    document.getElementById('next-med-name').innerText = "No Prescription";
-    document.getElementById('next-med-instruction').innerText = message;
-    document.getElementById('upcoming-list-container').innerHTML = `<p style='text-align:center;'>${message}</p>`;
-    document.getElementById('schedule-tbody').innerHTML = `<tr><td colspan='4' style='text-align:center;'>${message}</td></tr>`;
+window.triggerScanner = function(medId, medName, storageKey) {
+    window.expectedMedID = medId;
+    window.expectedMedName = medName;
+    window.expectedStorageKey = storageKey;
+
+    document.getElementById('dashboard-view').style.display = "none";
+    document.getElementById('scanner-view').style.display = "flex";
+    document.getElementById('scanner-title').innerText = `Scan ${medName}`;
+    
+    speakBeti(`Dadaji, kripya ${medName} scan karein.`);
+
+    html5QrCode = new Html5Qrcode("reader");
+    html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, window.onScanSuccess)
+    .catch(err => alert("Camera blocked or not available."));
 }
 
-// Time formatter (24hr to 12hr AM/PM)
-function formatAMPM(time24) {
-    let [hours, minutes] = time24.split(':');
-    hours = parseInt(hours);
-    let ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12;
-    hours = hours ? hours : 12; // 0 baje ko 12 banana
-    return `${hours}:${minutes} ${ampm}`;
+window.onScanSuccess = function(decodedText) {
+    try {
+        const scannedData = JSON.parse(decodedText);
+        html5QrCode.stop(); 
+
+        if (scannedData.id === window.expectedMedID) {
+            speakBeti(`Ji Dadaji! Yeh ${window.expectedMedName} hi hai.`);
+            document.getElementById('beti-bubble').style.backgroundColor = "#28a745";
+            
+            // Mark THAT SPECIFIC DAY and DOSE as taken
+            localStorage.setItem(window.expectedStorageKey, 'true');
+
+            setTimeout(() => { 
+                window.closeScannerView(); 
+                loadPatientData(); // Wapas grid load karo (tick lag jayega)
+            }, 4000);
+
+        } else {
+            speakBeti(`Rukiye! Yeh galat dawai hai.`);
+            document.getElementById('beti-bubble').style.backgroundColor = "#dc3545";
+            setTimeout(() => { window.closeScannerView(); }, 4000);
+        }
+    } catch (e) {
+        console.log("Invalid QR Data");
+    }
 }
 
-// Execute Script when page loads
+window.closeScannerView = function() {
+    if(html5QrCode) html5QrCode.stop().catch(e => console.log(e));
+    document.getElementById('scanner-view').style.display = "none";
+    document.getElementById('dashboard-view').style.display = "block";
+    document.getElementById('beti-bubble').style.backgroundColor = "var(--pink-beti)";
+}
+
 window.onload = loadPatientData;

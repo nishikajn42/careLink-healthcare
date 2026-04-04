@@ -3,83 +3,396 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patient Dashboard - Sanjeevni</title>
-    <link rel="stylesheet" href="patient_dashboard.css">
-    <link rel="stylesheet" href="beti.css">
+    <title>CareLink | Patient Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        :root {
+            --primary: #00766c;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-main: #333;
+            --text-muted: #666;
+            --box-pending: #f8f9fa;
+            --box-pending-border: #e2e8f0;
+            --box-taken: #e6fced;
+            --box-taken-border: #86efac;
+            --box-taken-text: #166534;
+            --pink-beti: #ff4bb4;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; color: var(--text-main); }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+
+        .navbar { display: flex; justify-content: space-between; align-items: center; background: var(--primary); color: white; padding: 15px 25px; border-radius: 0 0 15px 15px; }
+        .navbar h2 { margin: 0; font-size: 1.4rem; }
+        .nav-right { display: flex; align-items: center; gap: 20px; }
+        .logout-btn { background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+
+        .hero-section { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 20px; border-radius: 12px; margin-top: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .greeting h1 { margin: 0; font-size: 1.8rem; color: var(--primary); }
+        .greeting p { margin: 5px 0 0 0; color: var(--text-muted); font-weight: 500; }
+        .clock-container { text-align: right; }
+        .clock { font-size: 2rem; font-weight: bold; font-family: monospace; }
+        .date-text { color: var(--text-muted); font-size: 0.9rem; margin-top: 5px; }
+
+        .doctor-card { background: var(--card-bg); padding: 15px 20px; border-radius: 12px; border-left: 5px solid var(--primary); margin-top: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .doctor-card h3 { margin: 0 0 5px 0; color: var(--primary); }
+        .doctor-card p { margin: 0; color: var(--text-muted); }
+
+        .section-title { margin: 30px 0 15px 0; font-size: 1.2rem; border-bottom: 2px solid #ddd; padding-bottom: 5px; }
+        .all-meds-list { display: flex; gap: 15px; flex-wrap: wrap; }
+        .med-tag { background: #e0f2f1; color: var(--primary); padding: 8px 15px; border-radius: 20px; font-weight: 600; font-size: 0.9rem; }
+
+        /* Tracker Grid */
+        .tracker-container { background: var(--card-bg); padding: 25px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-top: 20px; }
+        .tracker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .tracker-header h3 { margin: 0; }
+        .badge { background: #ff4d4f; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
+        
+        .dose-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-top: 15px; }
+        .dose-box { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: bold; font-size: 1.1rem; border: 2px solid; cursor: pointer; position: relative;}
+        
+        .box-taken { background: var(--box-taken); border-color: var(--box-taken-border); color: var(--box-taken-text); pointer-events: none; }
+        .box-taken::after { content: '\f058'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: var(--success); position: absolute; top: -8px; right: -8px; background: white; border-radius: 50%; color: #28a745; font-size: 1.2rem;}
+        .box-pending { background: var(--box-pending); border-color: var(--box-pending-border); color: var(--text-muted); transition: 0.2s; }
+        .box-pending:hover { transform: scale(1.05); border-color: var(--primary); }
+
+        /* Scanner View UI */
+        #scanner-view { display: none; background: rgba(0,0,0,0.95); position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; flex-direction: column; align-items: center; justify-content: center; color: white; }
+        #reader { width: 100%; max-width: 400px; border-radius: 15px; overflow: hidden; background: white; }
+        .close-btn { position: absolute; top: 20px; right: 30px; font-size: 2rem; color: white; cursor: pointer; }
+        .beti-bubble { margin-top: 20px; padding: 15px 25px; background: var(--pink-beti); color: white; border-radius: 25px; font-weight: bold; font-size: 1.1rem; text-align: center; max-width: 80%; }
+    </style>
 </head>
 <body>
 
-    <nav class="navbar">
-        <div class="logo">Sanjeevni <span>| Patient Care</span></div>
-        <div class="nav-right">
-            <span id="nav-patient-id" style="color: white; font-weight: bold; margin-right: 15px;">ID: Loading...</span>
-            <button class="btn-logout" onclick="logoutPatient()">Log Out</button>
-        </div>
-    </nav>
-
-    <div class="dashboard-container">
-        
-        <div class="profile-card card">
-            <div class="profile-img-container" onclick="document.getElementById('file-upload').click()">
-                <img id="profile-img" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile Photo">
-                <div class="img-overlay"><i class="fa-solid fa-camera"></i></div>
-                <input type="file" id="file-upload" hidden accept="image/*" onchange="uploadProfilePhoto(event)">
+    <div id="dashboard-view">
+        <nav class="navbar">
+            <h2>CareLink | Patient Dashboard</h2>
+            <div class="nav-right">
+                <span id="nav-patient-id">ID: Fetching...</span>
+                <button class="logout-btn" onclick="logoutPatient()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
             </div>
-            
-            <div class="profile-details">
-                <h2 id="p-name">Loading Name...</h2>
-                <p class="p-age">Age: <span id="p-age-val">--</span></p>
-                <div class="p-status">
-                    <span class="status-dot"></span> 
-                    Status: <span id="p-medical-status">Active Treatment</span>
-                </div>
-            </div>
+        </nav>
+        <div class="container" id="main-content">
+            <h2 style='text-align:center; color: #666;'><i class="fa-solid fa-spinner fa-spin"></i> Loading Sanjeevni Data...</h2>
         </div>
-
-        <div class="reminders-grid">
-            
-            <div class="next-reminder-section">
-                <h3 class="section-title"><i class="fa-regular fa-bell"></i> NEXT REMINDER</h3>
-                <div class="next-reminder-box card" id="next-reminder-container">
-                    <div class="pulse-ring"></div>
-                    <h1 id="next-med-time">--:--</h1>
-                    <h2 id="next-med-name">Loading...</h2>
-                    <p id="next-med-instruction">--</p>
-                </div>
-            </div>
-
-            <div class="upcoming-reminders-section">
-                <h3 class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> UPCOMING REMINDERS</h3>
-                <div class="upcoming-list card" id="upcoming-list-container">
-                    </div>
-            </div>
-
-        </div>
-
-        <div class="schedule-section card">
-            <h3 class="section-title"><i class="fa-regular fa-calendar-days"></i> TODAY'S SCHEDULE</h3>
-            <table class="schedule-table">
-                <thead>
-                    <tr>
-                        <th>Time</th>
-                        <th>Medicine Name</th>
-                        <th>Quantity / Dosage</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="schedule-tbody">
-                    </tbody>
-            </table>
-        </div>
-
     </div>
-    <div id="beti-widget">
-    <div id="beti-bubble">Namaste!</div>
-    <button id="beti-btn" onclick="activateBeti()">👧</button>
-</div>
 
-<script  type="module" src="beti.js"></script>
-    <script src="patient_dashboard.js"></script>
+    <div id="scanner-view">
+        <i class="fa-solid fa-xmark close-btn" onclick="window.closeScannerView()"></i>
+        
+        <h2 style="margin-bottom: 20px;" id="scanner-title">Scan Medicine</h2>
+        <div id="reader"></div>
+        <div class="beti-bubble" id="beti-bubble">
+            <i class="fa-solid fa-robot"></i> Dadaji, kripya dawai ka QR code dikhayein...
+        </div>
+    </div>
+
+    <script type="module">
+        import { firebaseConfig } from './firebase-config.js';
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Security
+        const activePatientUser = localStorage.getItem("activeUser"); 
+        if (!activePatientUser) window.location.href = "index.html"; 
+
+        // Scanner Globals
+        let html5QrCode;
+        window.expectedMedName = null;
+        window.expectedStorageKey = null;
+
+        // 1. Digital Beti Voice System
+        window.speakBeti = function(text) {
+            const bubble = document.getElementById('beti-bubble');
+            if(bubble) bubble.innerHTML = `<i class="fa-solid fa-robot"></i> ${text}`;
+            const synth = window.speechSynthesis;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'hi-IN';
+            synth.speak(utterance);
+        }
+
+        // 2. Live Clock
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes().toString().padStart(2, '0');
+            let ampm = hours >= 12 ? 'PM' : 'AM';
+            let displayHours = hours % 12 || 12;
+
+            if(document.getElementById('live-clock')) {
+                document.getElementById('live-clock').innerText = `${displayHours.toString().padStart(2, '0')}:${minutes} ${ampm}`;
+                document.getElementById('live-date').innerText = now.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            }
+            return hours;
+        }
+
+        // 3. Fetch Data (UPDATED WITH ERROR DISPLAY)
+        async function fetchRealData() {
+            try {
+                const q = query(collection(db, "patients"), where("username", "==", activePatientUser));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    const data = querySnapshot.docs[0].data();
+                    buildDynamicDashboard(data); 
+                } else {
+                    document.getElementById('main-content').innerHTML = `
+                        <h2 style='text-align:center; color:#dc3545;'>Patient ID (${activePatientUser}) Database mein nahi mili!</h2>
+                        <p style='text-align:center;'>Pehle doctor panel se patient add karein.</p>`;
+                }
+            } catch (error) {
+                console.error("Firebase Error:", error);
+                document.getElementById('main-content').innerHTML = `
+                    <div style='text-align:center; padding: 40px;'>
+                        <h2 style='color:#dc3545;'><i class="fa-solid fa-triangle-exclamation"></i> Connection Error</h2>
+                        <p>Firebase se connect nahi ho paya. Kripya check karein:</p>
+                        <ul style="display:inline-block; text-align:left; color:#666;">
+                            <li>Aap Live Server use kar rahe hain ya nahi?</li>
+                            <li>firebase-config.js file sahi jagah par hai?</li>
+                            <li>Internet connection on hai?</li>
+                        </ul>
+                        <p style="color:red; font-size:12px;">Error Code: ${error.message}</p>
+                    </div>`;
+            }
+        }
+
+        // 4. Build Dashboard
+        function buildDynamicDashboard(patientData) {
+            const container = document.getElementById('main-content');
+            const durationDays = patientData.prescription?.durationDays || 5; 
+            const medicines = patientData.prescription?.medicines || [];
+            
+            const currentHour = updateClock();
+            let greet = currentHour < 12 ? "Morning" : currentHour < 17 ? "Afternoon" : "Evening";
+
+            let html = `
+                <div class="hero-section">
+                    <div class="greeting">
+                        <h1 id="greeting-text">Good ${greet}, ${patientData.name.split(' ')[0]}</h1>
+                        <p>Status: <span style="color: #28a745; font-weight: bold;">Active Treatment</span></p>
+                    </div>
+                    <div class="clock-container">
+                        <div class="clock" id="live-clock">00:00</div>
+                        <div class="date-text" id="live-date">---</div>
+                    </div>
+                </div>
+
+                <div class="doctor-card">
+                    <h3><i class="fa-solid fa-user-doctor"></i> ${patientData.doctorName || "Assigned Doctor"}</h3>
+                    <p>Sanjeevni Hospital Specialist</p>
+                </div>
+
+                <h3 class="section-title">All Prescribed Medicines</h3>
+                <div class="all-meds-list">
+            `;
+
+            medicines.forEach(med => {
+                html += `<div class="med-tag">${med.name} (${med.freq})</div>`;
+            });
+
+            html += `</div><h3 class="section-title">Treatment Progress Trackers</h3>`;
+
+            // Grid Generation
+            medicines.forEach((med, medIndex) => {
+                let timesPerDay = 1; 
+                let freqText = (med.freq || "").toLowerCase();
+                if(freqText.includes("twice") || freqText.includes("1 - 0 - 1") || freqText.includes("morning & night")) timesPerDay = 2;
+                else if(freqText.includes("thrice") || freqText.includes("1 - 1 - 1")) timesPerDay = 3;
+
+                let totalDoses = durationDays * timesPerDay;
+
+                html += `
+                <div class="tracker-container">
+                    <div class="tracker-header">
+                        <div>
+                            <h3>${med.name}</h3>
+                            <p style="margin:0; font-size:0.85rem; color:#666;">${med.freq} | ${med.instruction || ""}</p>
+                        </div>
+                        <span class="badge">Total: ${totalDoses} Doses</span>
+                    </div>
+                    <div class="dose-grid">
+                `;
+
+                for (let i = 1; i <= totalDoses; i++) {
+                    let storageKey = `taken_${activePatientUser}_${med.name.replace(/\s+/g, '_')}_${i}`;
+                    let isTaken = localStorage.getItem(storageKey) === 'true';
+                    
+                    let boxClass = isTaken ? "box-taken" : "box-pending";
+                    
+                    // NAYA LOGIC: Click event sirf tab lagega jab dose pending ho
+                    let clickEvent = isTaken ? "" : `onclick="window.triggerScanner('${med.name}', '${storageKey}')"`;
+
+                    html += `<div class="dose-box ${boxClass}" ${clickEvent}>${i}</div>`;
+                }
+
+                html += `</div></div>`; 
+            });
+
+            container.innerHTML = html;
+            document.getElementById('nav-patient-id').innerText = `ID: ${activePatientUser}`;
+            setInterval(updateClock, 1000);
+            updateClock();
+        }
+
+        // // ==========================================
+        // // 5. SCANNER VERIFICATION LOGIC
+        // // ==========================================
+
+        // window.triggerScanner = function(medName, storageKey) {
+        //     window.expectedMedName = medName;
+        //     window.expectedStorageKey = storageKey;
+
+        //     // Show Scanner UI
+        //     document.getElementById('dashboard-view').style.display = "none";
+        //     document.getElementById('scanner-view').style.display = "flex";
+        //     document.getElementById('scanner-title').innerText = `Scan ${medName}`;
+            
+        //     window.speakBeti(`Dadaji, kripya ${medName} scan karein.`);
+
+        //     html5QrCode = new Html5Qrcode("reader");
+        //     html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, window.onScanSuccess)
+        //     .catch(err => alert("Camera blocked. Please allow camera permissions."));
+        // }
+
+        // window.onScanSuccess = function(decodedText) {
+        //     try {
+        //         const scannedData = JSON.parse(decodedText); 
+        //         html5QrCode.stop(); // Stop camera
+
+        //         // Check Match (n === Expected Name)
+        //         if (scannedData.n.toLowerCase() === window.expectedMedName.toLowerCase()) {
+        //             window.speakBeti(`Ji Dadaji! Yeh ${window.expectedMedName} hi hai. Sahi dawai.`);
+        //             document.getElementById('beti-bubble').style.backgroundColor = "#28a745";
+                    
+        //             // Mark as taken
+        //             localStorage.setItem(window.expectedStorageKey, 'true');
+
+        //             // Go back & update UI after 4 seconds
+        //             setTimeout(() => { 
+        //                 window.closeScannerView(); 
+        //                 fetchRealData(); // Re-fetch to show the new green tick
+        //             }, 4000);
+
+        //         } else {
+        //             // Mismatch
+        //             window.speakBeti(`Rukiye Dadaji! Aapko ${window.expectedMedName} leni thi, par yeh ${scannedData.n} hai.`);
+        //             document.getElementById('beti-bubble').style.backgroundColor = "#dc3545";
+        //             setTimeout(() => { window.closeScannerView(); }, 4000);
+        //         }
+        //     } catch (e) {
+        //         console.log("Invalid QR Data");
+        //         window.speakBeti("Maaf kijiyega, main is QR code ko samajh nahi paayi.");
+        //         setTimeout(() => { window.closeScannerView(); }, 3000);
+        //     }
+        // }
+
+        // window.closeScannerView = function() {
+        //     if(html5QrCode) html5QrCode.stop().catch(e => console.log(e));
+        //     document.getElementById('scanner-view').style.display = "none";
+        //     document.getElementById('dashboard-view').style.display = "block";
+        //     document.getElementById('beti-bubble').style.backgroundColor = "var(--pink-beti)"; // Reset color
+        // }
+
+        // window.logoutPatient = function() {
+        //     localStorage.removeItem("activeUser");
+        //     window.location.href = "index.html";
+        // };
+
+        // // Start
+        // window.onload = fetchRealData;
+
+        // ==========================================
+        // 5. SCANNER VERIFICATION LOGIC (BUG FIXED)
+        // ==========================================
+        
+        // ==========================================
+        // 5. SCANNER VERIFICATION LOGIC (BUG FIXED)
+        // ==========================================
+
+        window.isProcessingScan = false; // Lock lagane ke liye
+
+        window.triggerScanner = function(medName, storageKey, instruction) {
+            window.expectedMedName = medName;
+            window.expectedStorageKey = storageKey;
+            window.expectedInstruction = instruction; // Firebase se aayi instruction
+            window.isProcessingScan = false; // Lock khol diya
+
+            // Show Scanner UI
+            document.getElementById('dashboard-view').style.display = "none";
+            document.getElementById('scanner-view').style.display = "flex";
+            document.getElementById('scanner-title').innerText = `Scan ${medName}`;
+            
+            window.speakBeti(`Dadaji, kripya ${medName} scan karein.`);
+
+            html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, window.onScanSuccess)
+            .catch(err => alert("Camera blocked. Please allow camera permissions."));
+        }
+
+        window.onScanSuccess = function(decodedText) {
+            // Agar processing chal rahi hai, toh doosre scan ko ignore karo
+            if (window.isProcessingScan) return; 
+            window.isProcessingScan = true; // Lock laga diya
+
+            try {
+                const scannedData = JSON.parse(decodedText); 
+
+                // Check Match (n === Expected Name)
+                if (scannedData.n.toLowerCase() === window.expectedMedName.toLowerCase()) {
+                    window.speakBeti(`Ji Dadaji! Yeh ${window.expectedMedName} hi hai. Isse ${window.expectedInstruction} lena hai.`);
+                    document.getElementById('beti-bubble').style.backgroundColor = "#28a745";
+                    
+                    // Mark as taken
+                    localStorage.setItem(window.expectedStorageKey, 'true');
+
+                    // Go back & update UI after 5 seconds
+                    setTimeout(() => { 
+                        window.closeScannerView(); 
+                        fetchRealData(); // Re-fetch to show the new green tick
+                    }, 5000); 
+
+                } else {
+                    // Mismatch
+                    window.speakBeti(`Rukiye Dadaji! Aapko ${window.expectedMedName} leni thi, par yeh ${scannedData.n} hai.`);
+                    document.getElementById('beti-bubble').style.backgroundColor = "#dc3545";
+                    
+                    setTimeout(() => { window.closeScannerView(); }, 4000);
+                }
+            } catch (e) {
+                console.log("Invalid QR Data");
+                window.speakBeti("Maaf kijiyega, main is QR code ko samajh nahi paayi.");
+                setTimeout(() => { window.closeScannerView(); }, 3000);
+            }
+        }
+
+        window.closeScannerView = function() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    html5QrCode.clear(); 
+                }).catch(e => console.log("Camera already stopped."));
+            }
+            
+            document.getElementById('scanner-view').style.display = "none";
+            document.getElementById('dashboard-view').style.display = "block";
+            document.getElementById('beti-bubble').style.backgroundColor = "var(--pink-beti)"; // Reset color
+            window.isProcessingScan = false; // Lock khol diya
+        }
+
+        window.logoutPatient = function() {
+            localStorage.removeItem("activeUser");
+            window.location.href = "index.html";
+        };
+
+        // Start
+        window.onload = fetchRealData;
+    </script>
+</body>
+</html>
+    </script>
 </body>
 </html>

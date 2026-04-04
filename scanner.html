@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CareLink | Scan & Verify</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 20px; text-align: center; }
+        #reader { 
+            width: 100%; 
+            max-width: 450px; 
+            margin: 20px auto; 
+            border-radius: 20px; 
+            overflow: hidden; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            background: white;
+        }
+        .beti-box { 
+            max-width: 500px; 
+            margin: 20px auto; 
+            padding: 20px; 
+            background: #ffffff; 
+            border-radius: 15px; 
+            border-left: 8px solid #ff4bb4; /* Pink for Digital Beti */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        #beti-bubble { font-size: 1.2rem; font-weight: 600; color: #333; line-height: 1.5; }
+        .match-success { color: #28a745 !important; }
+        .match-fail { color: #dc3545 !important; }
+    </style>
+</head>
+<body>
+
+    <h1>Sanjeevni Medicine Scanner</h1>
+    
+    <div id="reader"></div>
+
+    <div class="beti-box">
+        <p id="beti-bubble">Dawa ka QR code camera ke saamne laaiye dadaji, main check kar leti hoon...</p>
+    </div>
+
+    <script type="module">
+        import { speakBeti } from './js/beti.js';
+
+        // 1. URL se Expected Data uthana (Jo Dashboard se aaya hai)
+        const params = new URLSearchParams(window.location.search);
+        const expectedID = params.get('expectedID'); 
+        const expectedName = params.get('expectedName');
+
+        const html5QrCode = new Html5Qrcode("reader");
+
+        // 2. MAIN LOGIC: Jab QR Code scan ho jaye
+        const onScanSuccess = (decodedText) => {
+            try {
+                // Maan lo QR mein data hai: {"id": "para_500", "n": "Paracetamol"}
+                const scannedData = JSON.parse(decodedText);
+                const bubble = document.getElementById('beti-bubble');
+                
+                // Stop scanner immediately
+                html5QrCode.stop();
+
+                // 3. COMPARISON: Kya doctor wali ID aur scanned ID match hui?
+                if (scannedData.id === expectedID) {
+                    // ✅ MATCH FOUND
+                    const msg = `Haan Dadaji! Yeh bilkul sahi dawai hai. Yeh ${expectedName} hi hai. Aap ise le sakte hain.`;
+                    
+                    bubble.innerText = msg;
+                    bubble.className = "match-success";
+                    speakBeti(msg);
+
+                    // LocalStorage update karo taaki dashboard par "Tick" aa jaye
+                    const activeUser = localStorage.getItem("activeUser");
+                    let todayCount = parseInt(localStorage.getItem(`dailyCount_${activeUser}_${new Date().toDateString()}`)) || 0;
+                    localStorage.setItem(`dailyCount_${activeUser}_${new Date().toDateString()}`, todayCount + 1);
+
+                    // 5 seconds baad dashboard par wapas
+                    setTimeout(() => { window.location.href = "patient.html"; }, 5500);
+
+                } else {
+                    // ❌ MISMATCH
+                    const errorMsg = `Rukiye Dadaji! Yeh galat dawai hai. Aapko ${expectedName} leni thi, par aapne ${scannedData.n || 'kuch aur'} scan kiya hai. Kripya sahi dawai uthaiye.`;
+                    
+                    bubble.innerText = errorMsg;
+                    bubble.className = "match-fail";
+                    speakBeti(errorMsg);
+                    
+                    // Restart scanner after 4 seconds to try again
+                    setTimeout(() => { location.reload(); }, 6000);
+                }
+
+            } catch (e) {
+                console.error("Scan Error:", e);
+                speakBeti("Maaf kijiyega dadaji, main yeh code theek se padh nahi paayi.");
+            }
+        };
+
+        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+        // 4. Camera shuru karna
+        html5QrCode.start(
+            { facingMode: "environment" }, 
+            config, 
+            onScanSuccess
+        ).catch(err => {
+            console.error("Camera Error:", err);
+            document.getElementById('beti-bubble').innerText = "Camera shuru nahi ho paya. Kripya permission check karein.";
+        });
+
+    </script>
+</body>
+</html>
