@@ -97,8 +97,10 @@
 
 
 // =========================================
-// PROTOTYPE CREDENTIALS
+// PROTOTYPE CREDENTIALS & LOGIN LOGIC
 // =========================================
+
+// Pre-defined Hardcoded Credentials
 const VALID_EMPLOYEE = { username: "EMP-01", password: "123" };
 
 const VALID_DOCTORS = [
@@ -113,45 +115,54 @@ const VALID_DOCTORS = [
 ];
 
 // --- Staff Flow (Role -> User/Pass -> Login) ---
-function loginStaff() {
-    const user = document.getElementById('staff-username').value.trim();
-    const pass = document.getElementById('staff-password').value.trim();
+function loginStaff(role) {
+    let user = "";
+    let pass = "";
 
+    // Role ke hisaab se correct input boxes se value nikalna
+    if (role === 'Employee') {
+        user = document.getElementById('emp-username').value.trim();
+        pass = document.getElementById('emp-password').value.trim();
+    } else if (role === 'Doctor') {
+        user = document.getElementById('doc-username').value.trim();
+        pass = document.getElementById('doc-password').value.trim();
+    }
+
+    // Khali fields check karna
     if(user === '' || pass === '') {
         alert('Please enter both Username and Password.');
         return;
     }
 
-    // 1. Check Employee Credentials
-    if (currentStaffRole === 'Employee') {
+    // 1. Employee Login Check
+    if (role === 'Employee') {
         if (user === VALID_EMPLOYEE.username && pass === VALID_EMPLOYEE.password) {
             alert("Employee Login Successful! Redirecting to dashboard...");
             
-            // Save info so the dashboard knows who logged in
+            // LocalStorage mein save kar rahe hain taaki next page par pata chale kaun login hai
             localStorage.setItem("activeUser", user);
             localStorage.setItem("activeRole", "Employee");
             
-            // REDIRECT COMMAND: This takes you to the dashboard
-            window.location.href = "dashboard.html";
+            // Redirecting to the employee dashboard
+            window.location.href = "employee.html";
         } else {
             alert("Invalid Employee credentials. Try Username: EMP-01 | Pass: 123");
         }
     } 
-    // 2. Check Doctor Credentials
-    else if (currentStaffRole === 'Doctor') {
+    // 2. Doctor Login Check
+    else if (role === 'Doctor') {
+        // Find if the doctor username and password match any array entry
         const matchedDoctor = VALID_DOCTORS.find(doc => doc.username === user && doc.password === pass);
 
         if (matchedDoctor) {
             alert(`Welcome ${matchedDoctor.name}! Redirecting to dashboard...`);
             
-            // Save info so the dashboard knows which doctor logged in
             localStorage.setItem("activeUser", matchedDoctor.username);
             localStorage.setItem("activeRole", "Doctor");
             localStorage.setItem("activeDocName", matchedDoctor.name); 
             
-            // REDIRECT COMMAND: This takes you to the dashboard
-            window.location.href = "doctor_dashboard.html";
-           
+            // Redirecting to the doctor dashboard
+            window.location.href = "dr_dashboard.html";
         } else {
             alert("Invalid Doctor credentials. Try a username between DOC-01 and DOC-08 with Password: 123");
         }

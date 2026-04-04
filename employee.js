@@ -1,7 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-// Apni API key yaha daliye
 const firebaseConfig = {
     apiKey: "AIzaSyBkG-MkMl9dT92MsS4rzHFv0PCmd_XuFug",
     authDomain: "carelink-c5e57.firebaseapp.com",
@@ -25,12 +24,17 @@ const doctors = [
     { name: "Dr. Saloni Yadav", spec: "ENT Specialist", cabin: "Block B - 210", keywords: ["ear", "nose", "throat", "hearing"] }
 ];
 
+// Variables for Charts
+let ratioChartInstance = null;
+let trendChartInstance = null;
+let currentPatientData = null;
+
 // Logout Logic
 document.getElementById("logoutBtn").addEventListener("click", () => {
-    window.location.href = "index.html"; // Jaisa aapne manga tha
+    window.location.href = "index.html"; 
 });
 
-// Modal Elements
+// Modal Logic
 const modal = document.getElementById("regModal");
 const btn = document.getElementById("registerBtn");
 const span = document.getElementsByClassName("close")[0];
@@ -39,7 +43,7 @@ btn.onclick = () => { modal.style.display = "block"; document.getElementById("ac
 span.onclick = () => modal.style.display = "none";
 window.onclick = (event) => { if (event.target == modal) modal.style.display = "none"; }
 
-// Logic to auto-assign doctor
+// Auto-assign Doctor Logic
 function findDoctor(symptoms) {
     let lowerSymptoms = symptoms.toLowerCase();
     for (let doc of doctors) {
@@ -50,33 +54,31 @@ function findDoctor(symptoms) {
     return { name: "Dr. Salini Yadav", spec: "General Physician", cabin: "Ground - 001" };
 }
 
-// Generate Username Logic (Pehle 3 letter name ke + Age + Random 4 digits)
+// Generate Username
 function generateUsername(name, age) {
     let cleanName = name.replace(/\s+/g, '').toUpperCase().substring(0, 3);
     let randomNum = Math.floor(1000 + Math.random() * 9000);
-    return `${cleanName}${age}-${randomNum}`; // e.g. RAH45-8192
+    return `${cleanName}${age}-${randomNum}`; 
 }
-
-// Global variable to hold current patient data temporarily
-let currentPatientData = null;
 
 // 1. Assign Doctor Button Click
 document.getElementById("assignBtn").addEventListener("click", function() {
     const name = document.getElementById("pName").value;
     const age = document.getElementById("pAge").value;
     const symptoms = document.getElementById("pSymptoms").value;
+    const type = document.getElementById("pType").value;
 
-    if(!name || !age || !symptoms) {
-        alert("Please fill name, age, and symptoms first!");
+    if(!name || !age || !symptoms || !type) {
+        alert("Please fill Patient Type, Name, Age, and Symptoms first!");
         return;
     }
 
     const assignedDoc = findDoctor(symptoms);
     const username = generateUsername(name, age);
 
-    // Save temporarily for Save & Print buttons
     currentPatientData = {
         username: username,
+        type: type,
         name: name,
         age: age,
         phone: document.getElementById("pPhone").value,
@@ -87,12 +89,10 @@ document.getElementById("assignBtn").addEventListener("click", function() {
         cabin: assignedDoc.cabin
     };
 
-    // Show details on UI
     document.getElementById("displayUsername").innerText = username;
     document.getElementById("displayDoctor").innerText = `${assignedDoc.name} (${assignedDoc.spec})`;
     document.getElementById("displayCabin").innerText = assignedDoc.cabin;
     
-    // Hide Assign button, Show Save & Print buttons
     this.style.display = "none";
     document.getElementById("actionSection").style.display = "block";
 });
@@ -101,10 +101,8 @@ document.getElementById("assignBtn").addEventListener("click", function() {
 document.getElementById("printBtn").addEventListener("click", function() {
     if(!currentPatientData) return;
     
-    // Create a new window for printing
     let printWindow = window.open('', '_blank', 'width=800,height=900');
     
-    // A4 CSS & HTML Structure
     let printHTML = `
         <html>
         <head>
@@ -143,7 +141,7 @@ document.getElementById("printBtn").addEventListener("click", function() {
                     <div><strong>Patient Name:</strong> ${currentPatientData.name}</div>
                     <div><strong>Age:</strong> ${currentPatientData.age} Years</div>
                     <div><strong>Phone No:</strong> ${currentPatientData.phone}</div>
-                    <div><strong>Guardian/Relative:</strong> ${currentPatientData.relative}</div>
+                    <div><strong>Patient Type:</strong> ${currentPatientData.type}</div>
                     <div style="grid-column: span 2;"><strong>Initial Symptoms:</strong> ${currentPatientData.symptoms}</div>
                 </div>
 
@@ -160,18 +158,16 @@ document.getElementById("printBtn").addEventListener("click", function() {
                 </div>
             </div>
             <script>
-                // Automatically print when page loads
                 window.onload = function() { window.print(); }
             </script>
         </body>
         </html>
     `;
-    
     printWindow.document.write(printHTML);
     printWindow.document.close();
 });
 
-// 3. Save to Firebase Logic
+// 3. Save to Firebase
 document.getElementById("patientForm").addEventListener("submit", async function(e) {
     e.preventDefault();
     if(!currentPatientData) return;
@@ -184,30 +180,24 @@ document.getElementById("patientForm").addEventListener("submit", async function
     const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     const newPatient = {
-        username: currentPatientData.username,
-        name: currentPatientData.name,
-        phone: currentPatientData.phone,
-        symptoms: currentPatientData.symptoms,
-        doctorName: currentPatientData.doctorName,
-        cabin: currentPatientData.cabin,
+        ...currentPatientData,
         time: timeString,
         hour: currentHour,
-        isNew: true,
         timestamp: Date.now()
     };
 
     try {
         await addDoc(collection(db, "patients"), newPatient);
         
-        // Reset Everything
         this.reset();
         document.getElementById("actionSection").style.display = "none";
         document.getElementById("assignBtn").style.display = "block";
         modal.style.display = "none";
+        
         alert(`Successfully Saved!`);
         
-        // Refresh Dashboard (Aapka purana updateDashboard function call hoga)
-        if(typeof updateDashboard === "function") updateDashboard();
+        // Refresh Dashboard to show new data immediately
+        updateDashboard();
         
     } catch (error) {
         console.error("Error adding document: ", error);
@@ -217,4 +207,96 @@ document.getElementById("patientForm").addEventListener("submit", async function
     }
 });
 
-// ... (Baaki chart aur updateDashboard ka function as it is rakhna) ...
+// 4. Update Dashboard Logic (REAL-TIME FETCH)
+async function updateDashboard() {
+    try {
+        // Fetch all historical and current data from Firebase, ordered by time
+        const q = query(collection(db, "patients"), orderBy("timestamp", "desc"));
+        const snapshot = await getDocs(q);
+        
+        let total = 0;
+        let oldP = 0;
+        let newP = 0;
+        let tableHTML = "";
+        let hourlyData = new Array(24).fill(0); 
+
+        snapshot.forEach((doc) => {
+            const data = doc.data();
+            total++;
+            
+            // Calculate Old vs New
+            if(data.type === "Old") { oldP++; } 
+            else { newP++; }
+            
+            // Calculate Hourly Trend
+            if(data.hour !== undefined) { hourlyData[data.hour]++; }
+
+            // Populate Table (Show only 6 most recent records)
+            if(total <= 6) {
+                tableHTML += `<tr>
+                    <td><strong>${data.name}</strong></td>
+                    <td>${data.phone}</td>
+                    <td>${data.symptoms}</td>
+                    <td style="color: #008b74; font-weight: 500;">${data.doctorName}</td>
+                    <td>${data.cabin}</td>
+                    <td><span style="font-size: 0.85em; color: #666;">${data.time}</span></td>
+                </tr>`;
+            }
+        });
+
+        // Update Stats Counters
+        document.getElementById("totalCount").innerText = total;
+        document.getElementById("newCount").innerText = newP;
+        document.getElementById("oldCount").innerText = oldP;
+        document.getElementById("patientTableBody").innerHTML = tableHTML;
+
+        // Render Charts with fresh data
+        renderCharts(newP, oldP, hourlyData);
+
+    } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+    }
+}
+
+// 5. Render Charts dynamically
+function renderCharts(newCount, oldCount, hourlyData) {
+    // Destroy previous charts so they don't overlap when re-drawn
+    if(ratioChartInstance) ratioChartInstance.destroy();
+    if(trendChartInstance) trendChartInstance.destroy();
+
+    const ctxRatio = document.getElementById('ratioChart').getContext('2d');
+    ratioChartInstance = new Chart(ctxRatio, {
+        type: 'doughnut',
+        data: {
+            labels: ['New Patients', 'Old Patients'],
+            datasets: [{
+                data: [newCount, oldCount],
+                backgroundColor: ['#008b74', '#0f2942'],
+                borderWidth: 0
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    const ctxTrend = document.getElementById('trendChart').getContext('2d');
+    trendChartInstance = new Chart(ctxTrend, {
+        type: 'bar',
+        data: {
+            labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+            datasets: [{
+                label: 'Registrations per Hour',
+                data: hourlyData,
+                backgroundColor: '#008b74',
+                borderRadius: 4
+            }]
+        },
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+    });
+}
+
+// Initialize Dashboard when page loads
+window.onload = updateDashboard;

@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CareLink - Employee Dashboard</title>
+    <title>Sanjeevni - Employee Dashboard</title>
     <link rel="stylesheet" href="employee.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo">CareLink <span>Dashboard</span></div>
+        <div class="logo">Sanjeevni <span>| Employee Dashboard</span></div>
         <div class="nav-actions" style="display: flex; gap: 15px; align-items: center;">
             <button id="registerBtn" class="btn-primary">+ Register Patient</button>
             <button id="logoutBtn" class="btn-danger" style="background: transparent; color: #e63946; border: 1px solid #e63946; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s ease;">Log Out</button>
@@ -67,6 +67,12 @@
             <span class="close">&times;</span>
             <h2>New Patient Registration</h2>
             <form id="patientForm">
+                <select id="pType" required style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px;">
+                    <option value="" disabled selected>Select Patient Type</option>
+                    <option value="New">New Patient</option>
+                    <option value="Old">Old Patient / Follow-up</option>
+                </select>
+
                 <div class="form-group">
                     <input type="text" id="pName" placeholder="Patient Name" required>
                     <input type="number" id="pAge" placeholder="Age" required>
