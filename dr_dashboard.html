@@ -3,80 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Dashboard - CareLink</title>
+    <title>Sanjeevni - Doctor Dashboard</title>
     <link rel="stylesheet" href="dr_dashboard.css">
-</head>
-<body>
-    <nav class="navbar">
-        <div class="logo">Doctor<span>Dashboard</span></div>
-        <div class="nav-actions" style="display: flex; gap: 15px; align-items: center;">
-            <button id="registerBtn" class="btn-primary">+ Register Patient</button>
-            <button id="logoutBtn" class="btn-danger" style="background: transparent; color: #e63946; border: 1px solid #e63946; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s ease;">Log Out</button>
-        </div>
-    </nav>
-    <div class="container">
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3>Total Registrations</h3>
-                <h2 id="totalCount">0</h2>
-            </div>
-            <div class<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doctor Dashboard - MediCare</title>
-    <link rel="stylesheet" href="doctor_dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
     <header class="dash-navbar hide-on-print">
         <div class="dash-brand">
-            <i class="fa-solid fa-stethoscope"></i> MediCare Doctor Panel
+            <i class="fa-solid fa-stethoscope"></i> Sanjeevni <span>| Doctor Panel</span>
         </div>
         <nav class="dash-links">
-            <button class="nav-btn active" id="tab-btn-consult" onclick="switchDocTab('view-consultation')">Consultation</button>
-            <button class="nav-btn" id="tab-btn-old" onclick="switchDocTab('view-old-patients')">Old Patients</button>
-            <button class="nav-btn chat-btn" onclick="openChat()"><i class="fa-regular fa-comment-dots"></i> Chat</button>
+            <button class="nav-btn active" id="tab-btn-consult" onclick="switchDocTab('view-consultation')">Current Consultation</button>
+            <button class="nav-btn" id="tab-btn-old" onclick="switchDocTab('view-old-patients')">Patient History</button>
         </nav>
         <div class="dash-user">
-            <span id="doc-profile-name">Dr. Name</span>
+            <span id="doc-profile-name">Loading...</span>
             <button class="btn-logout" onclick="logout()">Logout</button>
         </div>
     </header>
 
     <main class="dash-container hide-on-print">
-        
         <div id="view-consultation" class="tab-content active">
             
             <div class="search-section card">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h2>Start Consultation</h2>
-                    <button class="btn btn-secondary btn-sm" onclick="clearDashboard()"><i class="fa-solid fa-rotate-right"></i> Next Patient</button>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h2>Find Patient</h2>
+                    <button class="btn btn-secondary btn-sm" onclick="clearDashboard()"><i class="fa-solid fa-rotate-right"></i> Reset / Next Patient</button>
                 </div>
                 
                 <div class="search-box">
-                    <input type="text" id="search-username" placeholder="Enter Patient Username (e.g., rahulsharma45)">
-                    <button class="btn btn-primary" onclick="fetchPatient()"><i class="fa-solid fa-magnifying-glass"></i> Fetch Details</button>
+                    <input type="text" id="search-username" placeholder="Enter Patient Username (e.g., HIM90-2632)">
+                    <button class="btn btn-primary" id="fetchBtn" onclick="fetchPatient()"><i class="fa-solid fa-magnifying-glass"></i> Fetch Record</button>
                 </div>
-                <p id="search-error" class="error-msg hidden">Patient not found. Check the username.</p>
+                <p id="search-error" class="error-msg hidden">Patient not found in database. Check the ID.</p>
             </div>
 
             <div id="consultation-section" class="hidden">
-                
                 <div class="patient-info-card card">
                     <div class="info-grid">
-                        <div><small>Name:</small> <strong id="pat-name">--</strong></div>
+                        <div><small>Patient Name:</small> <strong id="pat-name" class="text-teal">--</strong></div>
                         <div><small>Age:</small> <strong id="pat-age">--</strong></div>
                         <div><small>Phone:</small> <strong id="pat-phone">--</strong></div>
-                        <div><small>Symptoms:</small> <strong id="pat-symptoms" style="color: #ef4444;">--</strong></div>
+                        <div><small>Reported Symptoms:</small> <strong id="pat-symptoms" style="color: #e63946;">--</strong></div>
                     </div>
                 </div>
 
                 <div class="prescription-form card">
-                    <h3>Diagnosis / Observations</h3>
-                    <textarea id="diag-notes" placeholder="Write your diagnosis here..."></textarea>
+                    <h3><i class="fa-solid fa-clipboard-user"></i> Diagnosis / Observations</h3>
+                    <textarea id="diag-notes" placeholder="Write your diagnosis details here..."></textarea>
 
                     <div class="medication-section">
                         <div class="med-header">
@@ -86,17 +61,20 @@
                         <div id="medicines-container"></div>
                     </div>
 
-                    <h3>Diet & Lifestyle Advice</h3>
-                    <textarea id="diet-notes" placeholder="e.g., Avoid cold water..."></textarea>
-
-                    <div class="follow-up-section">
-                        <h3>Follow-up Visit</h3>
-                        <input type="date" id="follow-up-date" class="border-input">
+                    <div class="bottom-form-grid">
+                        <div>
+                            <h3><i class="fa-solid fa-apple-whole"></i> Diet & Advice</h3>
+                            <textarea id="diet-notes" placeholder="e.g., Avoid cold water, take rest..."></textarea>
+                        </div>
+                        <div>
+                            <h3><i class="fa-regular fa-calendar-check"></i> Follow-up Visit</h3>
+                            <input type="date" id="follow-up-date" class="border-input" style="width: 100%; padding: 10px; margin-top: 10px;">
+                        </div>
                     </div>
 
                     <div class="action-buttons">
-                        <button class="btn btn-primary" id="btn-save-consult" onclick="saveConsultation()">Save Consultation</button>
-                        <button class="btn btn-print hidden" id="btn-print-rx" onclick="window.print()"><i class="fa-solid fa-print"></i> Print Parcha</button>
+                        <button class="btn btn-primary" id="btn-save-consult" style="width: 100%; font-size: 1.1rem; padding: 15px;" onclick="saveConsultation()">Save Consultation to Database</button>
+                        <button class="btn btn-print hidden" id="btn-print-rx" style="width: 100%; font-size: 1.1rem; padding: 15px;" onclick="window.print()"><i class="fa-solid fa-print"></i> Print Official Prescription (Parcha)</button>
                     </div>
                 </div>
             </div>
@@ -104,31 +82,33 @@
 
         <div id="view-old-patients" class="tab-content hidden">
             <div class="card">
-                <h2>My Treated Patients</h2>
-                <p>History of patients you have consulted.</p>
+                <h2>My Consulted Patients</h2>
+                <p style="color: #666; margin-bottom: 20px;">History of all patients prescribed by you.</p>
                 
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th>Date</th>
-                            <th>Username</th>
+                            <th>ID (Username)</th>
                             <th>Patient Name</th>
                             <th>Diagnosis</th>
                             <th>Follow-up</th>
-                            <th>Action</th> 
                         </tr>
                     </thead>
                     <tbody id="doc-old-patients-list">
+                        <tr><td colspan="5" style="text-align: center;">Loading history...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
-
     </main>
 
     <div class="print-container">
         <div class="print-header">
-            <div><h1 class="print-hospital-name">MediCare Hospital</h1></div>
+            <div>
+                <h1 class="print-hospital-name">Sanjeevni Hospital</h1>
+                <p style="color: #008b74; font-weight: bold; font-style: italic;">"Healing with Heart"</p>
+            </div>
             <div class="print-username-box">ID: <span id="print-username"></span></div>
         </div>
         <div class="print-doc-info">
@@ -144,108 +124,33 @@
             <div class="p-row"><span>Diagnosis:</span> <span id="print-diag" class="line"></span></div>
         </div>
         <div class="print-rx">
-            <h1 class="rx-symbol">Rx</h1>
+            <h1 class="rx-symbol">&#8471;</h1>
             <table class="print-med-table" id="print-med-list">
                 <thead>
                     <tr><th>Medicine</th><th>Dosage Time</th><th>Instructions</th><th>Duration</th></tr>
                 </thead>
                 <tbody></tbody>
             </table>
-            <div class="print-advice"><strong>Advice / Diet:</strong><p id="print-diet"></p></div>
+            <div class="print-advice"><strong>Advice / Diet:</strong> <p id="print-diet"></p></div>
             <div class="print-followup"><strong>Next Visit:</strong> <span id="print-followup-date"></span></div>
         </div>
-    </div>
-
-    <div id="chatModal" class="chat-modal hidden">
-        <div class="chat-header"><span>Internal Chat</span><button onclick="closeChat()">X</button></div>
-        <div class="chat-body"><p><em>Welcome to the secure chat.</em></p></div>
-        <div class="chat-input"><input type="text" placeholder="Type message..."><button>Send</button></div>
-    </div>
-
-    <div id="pastRxModal" class="modal-overlay hidden">
-        <div class="modal-content rx-history-card">
-            <div class="modal-header">
-                <h2>Previous Consultation Details</h2>
-                <button class="close-btn" onclick="closePastRx()">&times;</button>
-            </div>
-            <div class="modal-body" id="past-rx-details">
-                </div>
+        <div style="margin-top: 50px; text-align: right; border-top: 1px solid #ccc; padding-top: 10px;">
+            <strong>Doctor's Signature</strong>
         </div>
     </div>
 
-    <script src="doctor_dashboard.js"></script>
-</body>
-</html>
-
-        <!-- <div class="charts-grid">
-            <div class="chart-card">
-                <h3>Registration Ratio</h3>
-                <canvas id="ratioChart"></canvas>
-            </div>
-            <div class="chart-card">
-                <h3>24-Hour Registration Trend</h3>
-                <canvas id="trendChart"></canvas>
-            </div>
-        </div> -->
-
-        <!-- <div class="table-card">
-            <h3>Recently Registered Patients</h3>
-            <table id="patientTable">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Phone</th>
-                        <th>Symptoms</th>
-                        <th>Assigned Doctor</th>
-                        <th>Cabin</th>
-                        <th>Time</th>
-                    </tr>
-                </thead>
-                <tbody id="patientTableBody">
-                    </tbody>
-            </table>
-        </div> -->
-    </div>
-
-<div class="dashboard-container">
-    <h2>Dr. Dashboard</h2>
-
-    <div class="section">
-        <h3>1. Patient Details</h3>
-        <div class="flex-row">
-            <input type="text" id="username" placeholder="Enter Patient Username">
-            <button onclick="fetchPatientDetails()">Fetch Details</button>
-        </div>
-        <div id="patient-info" style="display:none; color: #16a085; font-weight: bold;">
-            </div>
-    </div>
-
-    <div id="print-area">
-        <div class="section">
-            <h3>2. Diagnosis</h3>
-            <textarea id="disease" placeholder="Write about the patient's disease/symptoms..."></textarea>
-        </div>
-
-        <div class="section">
-            <h3>3. Prescribe Medicine</h3>
-            <div id="medicines-container"></div>
-            <button class="no-print" onclick="addMedicine()">+ Add Medicine</button>
-        </div>
-
-        <div class="section">
-            <h3>4. Additional Instructions</h3>
-            <div class="flex-row">
-                <input type="text" id="diet" placeholder="Diet Type / Instructions (e.g., Avoid sugar)">
-                <input type="date" id="next-visit" placeholder="Next Visit">
-            </div>
-        </div>
-    </div>
-
-    <div class="flex-row no-print" style="justify-content: flex-end; margin-top: 20px;">
-        <button class="btn-success" onclick="saveRecord()">Save Record</button>
-        <button class="btn-print" onclick="printPrescription()">🖨️ Print Prescription</button>
-    </div>
-</div>
-
+    <script>
+        window.switchDocTab = function(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.remove('hidden');
+            event.target.classList.add('active');
+            
+            if(tabId === 'view-old-patients' && typeof window.loadOldPatients === 'function') {
+                window.loadOldPatients();
+            }
+        };
+    </script>
+    <script type="module" src="dr_dashboard.js"></script>
 </body>
 </html>

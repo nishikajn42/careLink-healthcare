@@ -234,14 +234,17 @@ async function updateDashboard() {
             // Populate Table (Show only 6 most recent records)
             if(total <= 6) {
                 tableHTML += `<tr>
-                    <td><strong>${data.name}</strong></td>
-                    <td>${data.phone}</td>
-                    <td>${data.symptoms}</td>
-                    <td style="color: #008b74; font-weight: 500;">${data.doctorName}</td>
-                    <td>${data.cabin}</td>
-                    <td><span style="font-size: 0.85em; color: #666;">${data.time}</span></td>
-                </tr>`;
-            }
+                    <td>
+            <strong>${data.name}</strong><br>
+            <span style="font-size: 0.85em; color: #008b74; font-weight: 600;">ID: ${data.username}</span>
+        </td>
+        <td>${data.phone}</td>
+        <td>${data.symptoms}</td>
+        <td style="color: #0f2942; font-weight: 600;">${data.doctorName}</td>
+        <td>${data.cabin}</td>
+        <td><span style="font-size: 0.85em; color: #666;">${data.time}</span></td>
+    </tr>`;
+}
         });
 
         // Update Stats Counters
