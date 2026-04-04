@@ -69,14 +69,32 @@ It helps elderly patients:
 ![Site Landing Page ](images/assests/mainDashboard2.png)
 ![Site Landing Page ](images/assests/mainDashboard3.png)
 ![Site Landing Page ](images/assests/mainDaashboard4.png)
-## 👨‍⚕️ Doctor Dashboard
-![Doctor Dashboard](./docs/doctor-dashboard.png)
+![Site Landing Page ](images/assests/mainDashboard3.png)
+![Site Landing Page ](images/assests/mainDashboard6.png)
+![Site Landing Page ](images/assests/mainDashboard7.png)
+![Site Landing Page ](images/assests/mainDashborad8.png)
+![Footer](images/assests/footer.png)
 
+## 👤 Employee Login Page
+![Employee Login Page](images/assests/employeeLoginPage.png)
+## 👨‍⚕️ Doctor Login Page
+![Doctor Login Page](images/assests/doctorLoginPage.png)
+## 👤 Patient Login Page
+![Patient Login Page](images/assests/patientLoginPage.png)
+## 👤 Employee Dashboard
+![Employee Dashboard](images/assests/employeeDashboard1.png)
+![Employee Dashboard](images/assests/employeeDashboard2.png)
+![Paitent Reg Page](images/assests/paitentRegPage.png)
+## 👨‍⚕️ Doctor Dashboard
+![Doctor Dashboard](images/assests/doctorDashboard1.png)
+![Doctor Dashboard](images/assests/doctorDashboard2.png)
 ## 👤 Patient Dashboard
-![Patient Dashboard](./docs/patient-dashboard.png)
+![Patient Dashboard](images/assests/patientDashboard.png)
+![Patient Dashboard](images/assests/patientDashboard2.png)
 
 ## 🔔 Notifications System
-![Notifications](./docs/notifications.png)
+![Notifications System](images/assests/notificationsReminder.png)
+
 ---
 
 ## 👩‍💻 Author
