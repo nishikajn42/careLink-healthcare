@@ -63,6 +63,11 @@
         #reader { width: 100%; max-width: 400px; border-radius: 15px; overflow: hidden; background: white; }
         .close-btn { position: absolute; top: 20px; right: 30px; font-size: 2rem; color: white; cursor: pointer; }
         .beti-bubble { margin-top: 20px; padding: 15px 25px; background: var(--pink-beti); color: white; border-radius: 25px; font-weight: bold; font-size: 1.1rem; text-align: center; max-width: 80%; }
+        .box-taken { 
+            background-color: #e6fced !important; 
+            border-color: #86efac !important; 
+            color: #166534 !important; 
+        }
     </style>
 </head>
 <body>
@@ -89,7 +94,9 @@
             <i class="fa-solid fa-robot"></i> Dadaji, kripya dawai ka QR code dikhayein...
         </div>
     </div>
-<script type="module">
+
+
+    <script type="module">
         import { firebaseConfig } from './firebase-config.js';
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
@@ -97,13 +104,9 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Security check
         const activePatientUser = localStorage.getItem("activeUser"); 
-        if (!activePatientUser) {
-            window.location.href = "index.html";
-        }
+        if (!activePatientUser) window.location.href = "index.html"; 
 
-        // Global variables
         let html5QrCode;
         window.expectedMedName = null;
         window.expectedStorageKey = null;
@@ -112,7 +115,6 @@
         window.todaysAlarms = [];
         window.alreadyReminded = {};
 
-        // 1. Digital Beti Voice
         window.speakBeti = function(text) {
             const bubble = document.getElementById('beti-bubble');
             if(bubble) bubble.innerHTML = `<i class="fa-solid fa-robot"></i> ${text}`;
@@ -122,7 +124,6 @@
             synth.speak(utterance);
         };
 
-        // 2. Reminder & Alarm Logic
         if ("Notification" in window && Notification.permission !== "granted") {
             Notification.requestPermission();
         }
@@ -140,7 +141,6 @@
             });
         };
 
-        // 3. Live Clock
         function updateClock() {
             const now = new Date();
             let hours = now.getHours();
@@ -158,37 +158,29 @@
             return hours;
         }
 
-        // 4. Fetch Firebase Data
         async function fetchRealData() {
             try {
                 const q = query(collection(db, "patients"), where("username", "==", activePatientUser));
                 const querySnapshot = await getDocs(q);
-
                 if (!querySnapshot.empty) {
                     const data = querySnapshot.docs[0].data();
                     buildDynamicDashboard(data);
-                } else {
-                    document.getElementById('main-content').innerHTML = "<h2 style='text-align:center'>No Patient Record Found!</h2>";
                 }
             } catch (error) {
                 console.error("Firebase Error:", error);
-                document.getElementById('main-content').innerHTML = "<h2 style='text-align:center; color:red;'>Connection Error! Check Console.</h2>";
             }
         }
 
-        // 5. Build Dashboard UI
         function buildDynamicDashboard(patientData) {
             const container = document.getElementById('main-content');
             const durationDays = patientData.prescription?.durationDays || 5; 
             const medicines = patientData.prescription?.medicines || [];
-            const currentHour = updateClock();
-            let greet = currentHour < 12 ? "Morning" : currentHour < 17 ? "Afternoon" : "Evening";
+            updateClock();
 
             let html = `
                 <div class="hero-section">
                     <div class="greeting">
-                        <h1>Good ${greet}, ${patientData.name.split(' ')[0]}</h1>
-                        <p>Status: <span style="color: #28a745; font-weight: bold;">Active Treatment</span></p>
+                        <h1>Good Day, ${patientData.name.split(' ')[0]}</h1>
                     </div>
                     <div class="clock-container">
                         <div class="clock" id="live-clock">00:00</div>
@@ -197,52 +189,45 @@
                 </div>
                 <div class="doctor-card">
                     <h3><i class="fa-solid fa-user-doctor"></i> ${patientData.doctorName || "Assigned Doctor"}</h3>
-                    <p>Sanjeevni Hospital Specialist</p>
                 </div>
-                <h3 class="section-title">All Prescribed Medicines</h3>
-                <div class="all-meds-list">`;
+                <h3 class="section-title">Treatment Progress Trackers</h3>`;
 
-            medicines.forEach(med => { html += `<div class="med-tag">${med.name} (${med.freq})</div>`; });
-            html += `</div><h3 class="section-title">Treatment Progress Trackers</h3>`;
-
-            medicines.forEach((med, medIndex) => {
+            medicines.forEach((med) => {
                 let timesPerDay = 1; 
                 let freqText = (med.freq || "").toLowerCase();
                 if(freqText.includes("twice") || freqText.includes("1-0-1")) timesPerDay = 2;
                 else if(freqText.includes("thrice") || freqText.includes("1-1-1")) timesPerDay = 3;
 
                 let totalDoses = durationDays * timesPerDay;
+                
                 html += `
                 <div class="tracker-container">
                     <div class="tracker-header">
-                        <div><h3>${med.name}</h3><p>${med.freq} | ${med.instruction || ""}</p></div>
+                        <div><h3>${med.name}</h3><p>${med.freq}</p></div>
                         <span class="badge">Total: ${totalDoses} Doses</span>
                     </div>
-                    <div class="dose-grid">`;
+                    <div class="dose-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); gap: 10px;">`;
 
                 for (let i = 1; i <= totalDoses; i++) {
                     let storageKey = `taken_${activePatientUser}_${med.name.replace(/\s+/g, '_')}_${i}`;
                     let isTaken = localStorage.getItem(storageKey) === 'true';
+                    
                     let boxClass = isTaken ? "box-taken" : "box-pending";
                     let clickAction = isTaken ? "" : `onclick="window.triggerScanner('${med.name}', '${storageKey}', '${med.instruction || med.freq}')"`;
-                    html += `<div class="dose-box ${boxClass}" ${clickAction}>${i}</div>`;
+                    
+                    // Green Tick Icon Logic
+                    let innerContent = isTaken ? `<i class="fa-solid fa-check" style="color:white;"></i>` : i;
+                    let style = isTaken ? "background-color:#28a745; color:white; border-color:#28a745;" : "border: 2px solid #ddd;";
+
+                    html += `<div class="dose-box ${boxClass}" ${clickAction} style="width:50px; height:50px; display:flex; align-items:center; justify-content:center; border-radius:8px; cursor:pointer; font-size:14px; ${style}">${innerContent}</div>`;
                 }
                 html += `</div></div>`; 
             });
 
             container.innerHTML = html;
-            document.getElementById('nav-patient-id').innerText = `ID: ${activePatientUser}`;
-            
-            // Set 1-min Demo Alarm
-            if (medicines.length > 0) {
-                let dTime = new Date();
-                dTime.setMinutes(dTime.getMinutes() + 1);
-                window.todaysAlarms.push({ medName: medicines[0].name, time: `${dTime.getHours().toString().padStart(2, '0')}:${dTime.getMinutes().toString().padStart(2, '0')}` });
-            }
             setInterval(updateClock, 1000);
         }
 
-        // 6. Scanner Functions
         window.triggerScanner = function(medName, storageKey, instruction) {
             window.expectedMedName = medName;
             window.expectedStorageKey = storageKey;
@@ -263,15 +248,20 @@
                 if (sData.n.toLowerCase() === window.expectedMedName.toLowerCase()) {
                     window.speakBeti(`Ji Yeh ${window.expectedMedName} hi hai. Isse ${window.expectedInstruction} lena hai.`);
                     document.getElementById('beti-bubble').style.backgroundColor = "#28a745";
+                    
                     localStorage.setItem(window.expectedStorageKey, 'true');
-                    setTimeout(() => { window.closeScannerView(); fetchRealData(); }, 5000);
+
+                    setTimeout(() => { 
+                        window.closeScannerView(); 
+                        setTimeout(() => fetchRealData(), 500); 
+                    }, 5000);
                 } else {
                     window.speakBeti(`Rukiye, Aapko ${window.expectedMedName} leni thi, par yeh ${sData.n} hai.`);
                     document.getElementById('beti-bubble').style.backgroundColor = "#dc3545";
                     setTimeout(() => window.closeScannerView(), 4000);
                 }
             } catch (e) {
-                window.speakBeti("Maaf kijiyega, main is QR code ko samajh nahi paayi.");
+                window.speakBeti("QR code galat hai.");
                 setTimeout(() => window.closeScannerView(), 3000);
             }
         };
