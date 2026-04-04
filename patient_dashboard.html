@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard - Sanjeevni</title>
+    <link rel="stylesheet" href="patient_dashboard.css">
+    <link rel="stylesheet" href="beti.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">Sanjeevni <span>| Patient Care</span></div>
+        <div class="nav-right">
+            <span id="nav-patient-id" style="color: white; font-weight: bold; margin-right: 15px;">ID: Loading...</span>
+            <button class="btn-logout" onclick="logoutPatient()">Log Out</button>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        
+        <div class="profile-card card">
+            <div class="profile-img-container" onclick="document.getElementById('file-upload').click()">
+                <img id="profile-img" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile Photo">
+                <div class="img-overlay"><i class="fa-solid fa-camera"></i></div>
+                <input type="file" id="file-upload" hidden accept="image/*" onchange="uploadProfilePhoto(event)">
+            </div>
+            
+            <div class="profile-details">
+                <h2 id="p-name">Loading Name...</h2>
+                <p class="p-age">Age: <span id="p-age-val">--</span></p>
+                <div class="p-status">
+                    <span class="status-dot"></span> 
+                    Status: <span id="p-medical-status">Active Treatment</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="reminders-grid">
+            
+            <div class="next-reminder-section">
+                <h3 class="section-title"><i class="fa-regular fa-bell"></i> NEXT REMINDER</h3>
+                <div class="next-reminder-box card" id="next-reminder-container">
+                    <div class="pulse-ring"></div>
+                    <h1 id="next-med-time">--:--</h1>
+                    <h2 id="next-med-name">Loading...</h2>
+                    <p id="next-med-instruction">--</p>
+                </div>
+            </div>
+
+            <div class="upcoming-reminders-section">
+                <h3 class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> UPCOMING REMINDERS</h3>
+                <div class="upcoming-list card" id="upcoming-list-container">
+                    </div>
+            </div>
+
+        </div>
+
+        <div class="schedule-section card">
+            <h3 class="section-title"><i class="fa-regular fa-calendar-days"></i> TODAY'S SCHEDULE</h3>
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Medicine Name</th>
+                        <th>Quantity / Dosage</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="schedule-tbody">
+                    </tbody>
+            </table>
+        </div>
+
+    </div>
+    <div id="beti-widget">
+    <div id="beti-bubble">Namaste!</div>
+    <button id="beti-btn" onclick="activateBeti()">👧</button>
+</div>
+
+<script  type="module" src="beti.js"></script>
+    <script src="patient_dashboard.js"></script>
+</body>
+</html>

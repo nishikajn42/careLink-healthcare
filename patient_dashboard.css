@@ -1,0 +1,53 @@
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+body { background-color: #f4f7f6; color: #333; }
+
+/* Navbar */
+.navbar { background: #0f2942; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+.logo { font-size: 1.4rem; font-weight: bold; color: #008b74; }
+.logo span { color: white; font-weight: normal; font-size: 1rem; }
+.btn-logout { background: transparent; color: #ef4444; border: 1px solid #ef4444; padding: 6px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+.btn-logout:hover { background: #ef4444; color: white; }
+
+.dashboard-container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+.card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 25px; border-top: 4px solid #008b74; margin-bottom: 25px; }
+.section-title { color: #0f2942; font-size: 1.1rem; margin-bottom: 15px; letter-spacing: 0.5px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+
+/* --- PROFILE SECTION --- */
+.profile-card { display: flex; align-items: center; gap: 25px; border-top: 4px solid #0f2942; }
+.profile-img-container { position: relative; width: 100px; height: 100px; border-radius: 50%; overflow: hidden; cursor: pointer; border: 3px solid #008b74; flex-shrink: 0; }
+.profile-img-container img { width: 100%; height: 100%; object-fit: cover; }
+.img-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; opacity: 0; transition: 0.3s; }
+.profile-img-container:hover .img-overlay { opacity: 1; }
+
+.profile-details { display: flex; flex-direction: column; gap: 5px; }
+.profile-details h2 { color: #0f2942; font-size: 1.8rem; margin: 0; }
+.p-age { color: #666; font-size: 1.1rem; font-weight: 500; }
+.p-status { display: inline-flex; align-items: center; gap: 8px; background: #e0f2f1; color: #006b5a; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; width: fit-content; margin-top: 5px;}
+.status-dot { width: 8px; height: 8px; background: #008b74; border-radius: 50%; }
+
+/* --- REMINDERS GRID --- */
+.reminders-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+
+/* Next Reminder Box */
+.next-reminder-box { text-align: center; background: linear-gradient(135deg, #008b74, #006b5a); color: white; border-top: none; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; min-height: 200px;}
+.next-reminder-box h1 { font-size: 3rem; margin-bottom: 5px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+.next-reminder-box h2 { font-size: 1.5rem; margin-bottom: 5px; }
+.next-reminder-box p { background: rgba(255,255,255,0.2); display: inline-block; padding: 5px 15px; border-radius: 15px; font-size: 0.9rem; align-self: center; }
+
+/* Upcoming Reminders List */
+.upcoming-list { min-height: 200px; max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 15px; }
+.upcoming-box { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #0f2942; padding: 12px 15px; border-radius: 6px; }
+.up-time { font-size: 1.2rem; font-weight: bold; color: #0f2942; }
+.up-med { font-size: 1rem; color: #333; font-weight: 500;}
+
+/* --- SCHEDULE TABLE --- */
+.schedule-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.schedule-table th, .schedule-table td { padding: 15px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+.schedule-table th { background: #f4f7f6; color: #0f2942; font-weight: 600; }
+.schedule-table tr:hover { background-color: #fafafa; }
+.status-badge { background: #fee2e2; color: #dc2626; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
+.status-badge.taken { background: #dcfce7; color: #16a34a; }
+
+/* Custom Scrollbar for upcoming list */
+.upcoming-list::-webkit-scrollbar { width: 6px; }
+.upcoming-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
