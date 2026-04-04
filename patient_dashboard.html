@@ -89,8 +89,7 @@
             <i class="fa-solid fa-robot"></i> Dadaji, kripya dawai ka QR code dikhayein...
         </div>
     </div>
-
-    <script type="module">
+<script type="module">
         import { firebaseConfig } from './firebase-config.js';
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
@@ -98,16 +97,22 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Security
+        // Security check
         const activePatientUser = localStorage.getItem("activeUser"); 
-        if (!activePatientUser) window.location.href = "index.html"; 
+        if (!activePatientUser) {
+            window.location.href = "index.html";
+        }
 
-        // Scanner Globals
+        // Global variables
         let html5QrCode;
         window.expectedMedName = null;
         window.expectedStorageKey = null;
+        window.expectedInstruction = null;
+        window.isProcessingScan = false;
+        window.todaysAlarms = [];
+        window.alreadyReminded = {};
 
-        // 1. Digital Beti Voice System
+        // 1. Digital Beti Voice
         window.speakBeti = function(text) {
             const bubble = document.getElementById('beti-bubble');
             if(bubble) bubble.innerHTML = `<i class="fa-solid fa-robot"></i> ${text}`;
@@ -115,86 +120,45 @@
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'hi-IN';
             synth.speak(utterance);
-        }
+        };
 
-        // ==========================================
-        // 6. REMINDER & ALARM SYSTEM
-        // ==========================================
-
-        // Browser Notification permission maango
+        // 2. Reminder & Alarm Logic
         if ("Notification" in window && Notification.permission !== "granted") {
             Notification.requestPermission();
         }
 
-        // Ek list jisme aaj ke alarms save honge
-        window.todaysAlarms = [];
-        window.alreadyReminded = {}; // Taaki baar-baar aawaz na kare
-
-        // Yeh function check karega ki time hua ya nahi
         window.checkReminders = function(currentHour, currentMinute) {
             let currentTimeStr = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
-            
             window.todaysAlarms.forEach(alarm => {
                 if (alarm.time === currentTimeStr && !window.alreadyReminded[alarm.medName]) {
-                    
-                    // 1. Awaz Lagao (Voice)
-                    window.speakBeti(`APKA, time ho gaya hai! Kripya apni ${alarm.medName} dawai le lijiye.`);
-                    
-                    // 2. Screen Par Notification Bhejo
+                    window.speakBeti(`AAP, time ho gaya hai! Kripya apni ${alarm.medName} dawai le lijiye.`);
                     if (Notification.permission === "granted") {
-                        new Notification("Dawai ka Samay! ⏰", {
-                            body: `APKA, aapki ${alarm.medName} lene ka waqt ho gaya hai.`,
-                            icon: "https://cdn-icons-png.flaticon.com/512/2966/2966327.png" // Ek pill ka icon
-                        });
+                        new Notification("Dawai ka Samay! ⏰", { body: `AAP, aapki ${alarm.medName} lene ka waqt ho gaya hai.` });
                     }
-
-                    // 3. System ko batao ki yaad dila diya hai
-                    window.alreadyReminded[alarm.medName] = true; 
+                    window.alreadyReminded[alarm.medName] = true;
                 }
             });
-        }
+        };
 
-        // 2. Live Clock & Reminder Checker
+        // 3. Live Clock
         function updateClock() {
             const now = new Date();
             let hours = now.getHours();
             let minutes = now.getMinutes();
             let seconds = now.getSeconds();
-            
-            let displayMinutes = minutes.toString().padStart(2, '0');
             let ampm = hours >= 12 ? 'PM' : 'AM';
             let displayHours = hours % 12 || 12;
 
             if(document.getElementById('live-clock')) {
-                document.getElementById('live-clock').innerText = `${displayHours.toString().padStart(2, '0')}:${displayMinutes} ${ampm}`;
+                document.getElementById('live-clock').innerText = `${displayHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+                document.getElementById('live-date').innerText = now.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             }
 
-            // NAYA: Har bar jab second 00 ho, tab reminder check karo
-            if (seconds === 0) {
-                window.checkReminders(hours, minutes);
-            }
-
+            if (seconds === 0) window.checkReminders(hours, minutes);
             return hours;
         }
 
-        // --- HACKATHON DEMO ALARM SETUP ---
-            // Demo ke liye, pehli dawai ka alarm exact 1 minute aage set kar dete hain
-            if (medicines.length > 0) {
-                let demoTime = new Date();
-                demoTime.setMinutes(demoTime.getMinutes() + 1); // Exact 1 min baad
-                
-                let alarmHour = demoTime.getHours().toString().padStart(2, '0');
-                let alarmMin = demoTime.getMinutes().toString().padStart(2, '0');
-                
-                window.todaysAlarms.push({
-                    medName: medicines[0].name,
-                    time: `${alarmHour}:${alarmMin}` // Format: "14:05" (24hr)
-                });
-                
-                console.log(`Demo Alarm set for ${medicines[0].name} at ${alarmHour}:${alarmMin}`);
-            }
-
-        // 3. Fetch Data (UPDATED WITH ERROR DISPLAY)
+        // 4. Fetch Firebase Data
         async function fetchRealData() {
             try {
                 const q = query(collection(db, "patients"), where("username", "==", activePatientUser));
@@ -202,41 +166,28 @@
 
                 if (!querySnapshot.empty) {
                     const data = querySnapshot.docs[0].data();
-                    buildDynamicDashboard(data); 
+                    buildDynamicDashboard(data);
                 } else {
-                    document.getElementById('main-content').innerHTML = `
-                        <h2 style='text-align:center; color:#dc3545;'>Patient ID (${activePatientUser}) Database mein nahi mili!</h2>
-                        <p style='text-align:center;'>Pehle doctor panel se patient add karein.</p>`;
+                    document.getElementById('main-content').innerHTML = "<h2 style='text-align:center'>No Patient Record Found!</h2>";
                 }
             } catch (error) {
                 console.error("Firebase Error:", error);
-                document.getElementById('main-content').innerHTML = `
-                    <div style='text-align:center; padding: 40px;'>
-                        <h2 style='color:#dc3545;'><i class="fa-solid fa-triangle-exclamation"></i> Connection Error</h2>
-                        <p>Firebase se connect nahi ho paya. Kripya check karein:</p>
-                        <ul style="display:inline-block; text-align:left; color:#666;">
-                            <li>Aap Live Server use kar rahe hain ya nahi?</li>
-                            <li>firebase-config.js file sahi jagah par hai?</li>
-                            <li>Internet connection on hai?</li>
-                        </ul>
-                        <p style="color:red; font-size:12px;">Error Code: ${error.message}</p>
-                    </div>`;
+                document.getElementById('main-content').innerHTML = "<h2 style='text-align:center; color:red;'>Connection Error! Check Console.</h2>";
             }
         }
 
-        // 4. Build Dashboard
+        // 5. Build Dashboard UI
         function buildDynamicDashboard(patientData) {
             const container = document.getElementById('main-content');
             const durationDays = patientData.prescription?.durationDays || 5; 
             const medicines = patientData.prescription?.medicines || [];
-            
             const currentHour = updateClock();
             let greet = currentHour < 12 ? "Morning" : currentHour < 17 ? "Afternoon" : "Evening";
 
             let html = `
                 <div class="hero-section">
                     <div class="greeting">
-                        <h1 id="greeting-text">Good ${greet}, ${patientData.name.split(' ')[0]}</h1>
+                        <h1>Good ${greet}, ${patientData.name.split(' ')[0]}</h1>
                         <p>Status: <span style="color: #28a745; font-weight: bold;">Active Treatment</span></p>
                     </div>
                     <div class="clock-container">
@@ -244,147 +195,104 @@
                         <div class="date-text" id="live-date">---</div>
                     </div>
                 </div>
-
                 <div class="doctor-card">
                     <h3><i class="fa-solid fa-user-doctor"></i> ${patientData.doctorName || "Assigned Doctor"}</h3>
                     <p>Sanjeevni Hospital Specialist</p>
                 </div>
-
                 <h3 class="section-title">All Prescribed Medicines</h3>
-                <div class="all-meds-list">
-            `;
+                <div class="all-meds-list">`;
 
-            medicines.forEach(med => {
-                html += `<div class="med-tag">${med.name} (${med.freq})</div>`;
-            });
-
+            medicines.forEach(med => { html += `<div class="med-tag">${med.name} (${med.freq})</div>`; });
             html += `</div><h3 class="section-title">Treatment Progress Trackers</h3>`;
 
-            // Grid Generation
             medicines.forEach((med, medIndex) => {
                 let timesPerDay = 1; 
                 let freqText = (med.freq || "").toLowerCase();
-                if(freqText.includes("twice") || freqText.includes("1 - 0 - 1") || freqText.includes("morning & night")) timesPerDay = 2;
-                else if(freqText.includes("thrice") || freqText.includes("1 - 1 - 1")) timesPerDay = 3;
+                if(freqText.includes("twice") || freqText.includes("1-0-1")) timesPerDay = 2;
+                else if(freqText.includes("thrice") || freqText.includes("1-1-1")) timesPerDay = 3;
 
                 let totalDoses = durationDays * timesPerDay;
-
                 html += `
                 <div class="tracker-container">
                     <div class="tracker-header">
-                        <div>
-                            <h3>${med.name}</h3>
-                            <p style="margin:0; font-size:0.85rem; color:#666;">${med.freq} | ${med.instruction || ""}</p>
-                        </div>
+                        <div><h3>${med.name}</h3><p>${med.freq} | ${med.instruction || ""}</p></div>
                         <span class="badge">Total: ${totalDoses} Doses</span>
                     </div>
-                    <div class="dose-grid">
-                `;
+                    <div class="dose-grid">`;
 
                 for (let i = 1; i <= totalDoses; i++) {
                     let storageKey = `taken_${activePatientUser}_${med.name.replace(/\s+/g, '_')}_${i}`;
                     let isTaken = localStorage.getItem(storageKey) === 'true';
-                    
                     let boxClass = isTaken ? "box-taken" : "box-pending";
-                    
-                    // NAYA LOGIC: Click event sirf tab lagega jab dose pending ho
-                    let clickEvent = isTaken ? "" : `onclick="window.triggerScanner('${med.name}', '${storageKey}')"`;
-
-                    html += `<div class="dose-box ${boxClass}" ${clickEvent}>${i}</div>`;
+                    let clickAction = isTaken ? "" : `onclick="window.triggerScanner('${med.name}', '${storageKey}', '${med.instruction || med.freq}')"`;
+                    html += `<div class="dose-box ${boxClass}" ${clickAction}>${i}</div>`;
                 }
-
                 html += `</div></div>`; 
             });
 
             container.innerHTML = html;
             document.getElementById('nav-patient-id').innerText = `ID: ${activePatientUser}`;
+            
+            // Set 1-min Demo Alarm
+            if (medicines.length > 0) {
+                let dTime = new Date();
+                dTime.setMinutes(dTime.getMinutes() + 1);
+                window.todaysAlarms.push({ medName: medicines[0].name, time: `${dTime.getHours().toString().padStart(2, '0')}:${dTime.getMinutes().toString().padStart(2, '0')}` });
+            }
             setInterval(updateClock, 1000);
-            updateClock();
         }
 
-        
-        
-        // ==========================================
-        // 5. SCANNER VERIFICATION LOGIC (BUG FIXED)
-        // ==========================================
-
-        window.isProcessingScan = false; // Lock lagane ke liye
-
+        // 6. Scanner Functions
         window.triggerScanner = function(medName, storageKey, instruction) {
             window.expectedMedName = medName;
             window.expectedStorageKey = storageKey;
-            window.expectedInstruction = instruction; // Firebase se aayi instruction
-            window.isProcessingScan = false; // Lock khol diya
-
-            // Show Scanner UI
+            window.expectedInstruction = instruction;
+            window.isProcessingScan = false;
             document.getElementById('dashboard-view').style.display = "none";
             document.getElementById('scanner-view').style.display = "flex";
-            document.getElementById('scanner-title').innerText = `Scan ${medName}`;
-            
             window.speakBeti(`AAP, kripya ${medName} scan karein.`);
-
             html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, window.onScanSuccess)
-            .catch(err => alert("Camera blocked. Please allow camera permissions."));
-        }
+            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, window.onScanSuccess);
+        };
 
         window.onScanSuccess = function(decodedText) {
-            // Agar processing chal rahi hai, toh doosre scan ko ignore karo
-            if (window.isProcessingScan) return; 
-            window.isProcessingScan = true; // Lock laga diya
-
+            if (window.isProcessingScan) return;
+            window.isProcessingScan = true;
             try {
-                const scannedData = JSON.parse(decodedText); 
-
-                // Check Match (n === Expected Name)
-                if (scannedData.n.toLowerCase() === window.expectedMedName.toLowerCase()) {
+                const sData = JSON.parse(decodedText);
+                if (sData.n.toLowerCase() === window.expectedMedName.toLowerCase()) {
                     window.speakBeti(`Ji Yeh ${window.expectedMedName} hi hai. Isse ${window.expectedInstruction} lena hai.`);
                     document.getElementById('beti-bubble').style.backgroundColor = "#28a745";
-                    
-                    // Mark as taken
                     localStorage.setItem(window.expectedStorageKey, 'true');
-
-                    // Go back & update UI after 5 seconds
-                    setTimeout(() => { 
-                        window.closeScannerView(); 
-                        fetchRealData(); // Re-fetch to show the new green tick
-                    }, 5000); 
-
+                    setTimeout(() => { window.closeScannerView(); fetchRealData(); }, 5000);
                 } else {
-                    // Mismatch
-                    window.speakBeti(`Rukiye  Aapko ${window.expectedMedName} leni thi, par yeh ${scannedData.n} hai.`);
+                    window.speakBeti(`Rukiye, Aapko ${window.expectedMedName} leni thi, par yeh ${sData.n} hai.`);
                     document.getElementById('beti-bubble').style.backgroundColor = "#dc3545";
-                    
-                    setTimeout(() => { window.closeScannerView(); }, 4000);
+                    setTimeout(() => window.closeScannerView(), 4000);
                 }
             } catch (e) {
-                console.log("Invalid QR Data");
                 window.speakBeti("Maaf kijiyega, main is QR code ko samajh nahi paayi.");
-                setTimeout(() => { window.closeScannerView(); }, 3000);
+                setTimeout(() => window.closeScannerView(), 3000);
             }
-        }
+        };
 
         window.closeScannerView = function() {
             if (html5QrCode) {
-                html5QrCode.stop().then(() => {
-                    html5QrCode.clear(); 
-                }).catch(e => console.log("Camera already stopped."));
+                html5QrCode.stop().then(() => html5QrCode.clear()).catch(e => console.log(e));
             }
-            
             document.getElementById('scanner-view').style.display = "none";
             document.getElementById('dashboard-view').style.display = "block";
-            document.getElementById('beti-bubble').style.backgroundColor = "var(--pink-beti)"; // Reset color
-            window.isProcessingScan = false; // Lock khol diya
-        }
+            window.isProcessingScan = false;
+        };
 
         window.logoutPatient = function() {
-            localStorage.removeItem("activeUser");
+            localStorage.clear();
             window.location.href = "index.html";
         };
 
-        // Start
         window.onload = fetchRealData;
     </script>
+    
     <script src="beti.js"></script>
 </body>
 </html>
