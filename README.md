@@ -63,7 +63,20 @@ It helps elderly patients:
 6. System ensures proper medicine tracking  
 
 ---
+## 📸 Preview
 
+![Site Landing Page ](images/assests/mainDashboard.png)
+![Site Landing Page ](images/assests/mainDashboard2.png)
+![Site Landing Page ](images/assests/mainDashboard3.png)
+![Site Landing Page ](images/assests/mainDaashboard4.png)
+## 👨‍⚕️ Doctor Dashboard
+![Doctor Dashboard](./docs/doctor-dashboard.png)
+
+## 👤 Patient Dashboard
+![Patient Dashboard](./docs/patient-dashboard.png)
+
+## 🔔 Notifications System
+![Notifications](./docs/notifications.png)
 ---
 
 ## 👩‍💻 Author

@@ -6,6 +6,7 @@
     <title>CareLink | Patient Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/html5-qrcode"></script>
+    <link rel="stylesheet" href="beti.css">
     <style>
         :root {
             --primary: #00766c;
@@ -116,20 +117,82 @@
             synth.speak(utterance);
         }
 
-        // 2. Live Clock
+        // ==========================================
+        // 6. REMINDER & ALARM SYSTEM
+        // ==========================================
+
+        // Browser Notification permission maango
+        if ("Notification" in window && Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
+
+        // Ek list jisme aaj ke alarms save honge
+        window.todaysAlarms = [];
+        window.alreadyReminded = {}; // Taaki baar-baar aawaz na kare
+
+        // Yeh function check karega ki time hua ya nahi
+        window.checkReminders = function(currentHour, currentMinute) {
+            let currentTimeStr = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
+            
+            window.todaysAlarms.forEach(alarm => {
+                if (alarm.time === currentTimeStr && !window.alreadyReminded[alarm.medName]) {
+                    
+                    // 1. Awaz Lagao (Voice)
+                    window.speakBeti(`APKA, time ho gaya hai! Kripya apni ${alarm.medName} dawai le lijiye.`);
+                    
+                    // 2. Screen Par Notification Bhejo
+                    if (Notification.permission === "granted") {
+                        new Notification("Dawai ka Samay! ⏰", {
+                            body: `APKA, aapki ${alarm.medName} lene ka waqt ho gaya hai.`,
+                            icon: "https://cdn-icons-png.flaticon.com/512/2966/2966327.png" // Ek pill ka icon
+                        });
+                    }
+
+                    // 3. System ko batao ki yaad dila diya hai
+                    window.alreadyReminded[alarm.medName] = true; 
+                }
+            });
+        }
+
+        // 2. Live Clock & Reminder Checker
         function updateClock() {
             const now = new Date();
             let hours = now.getHours();
-            let minutes = now.getMinutes().toString().padStart(2, '0');
+            let minutes = now.getMinutes();
+            let seconds = now.getSeconds();
+            
+            let displayMinutes = minutes.toString().padStart(2, '0');
             let ampm = hours >= 12 ? 'PM' : 'AM';
             let displayHours = hours % 12 || 12;
 
             if(document.getElementById('live-clock')) {
-                document.getElementById('live-clock').innerText = `${displayHours.toString().padStart(2, '0')}:${minutes} ${ampm}`;
-                document.getElementById('live-date').innerText = now.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                document.getElementById('live-clock').innerText = `${displayHours.toString().padStart(2, '0')}:${displayMinutes} ${ampm}`;
             }
+
+            // NAYA: Har bar jab second 00 ho, tab reminder check karo
+            if (seconds === 0) {
+                window.checkReminders(hours, minutes);
+            }
+
             return hours;
         }
+
+        // --- HACKATHON DEMO ALARM SETUP ---
+            // Demo ke liye, pehli dawai ka alarm exact 1 minute aage set kar dete hain
+            if (medicines.length > 0) {
+                let demoTime = new Date();
+                demoTime.setMinutes(demoTime.getMinutes() + 1); // Exact 1 min baad
+                
+                let alarmHour = demoTime.getHours().toString().padStart(2, '0');
+                let alarmMin = demoTime.getMinutes().toString().padStart(2, '0');
+                
+                window.todaysAlarms.push({
+                    medName: medicines[0].name,
+                    time: `${alarmHour}:${alarmMin}` // Format: "14:05" (24hr)
+                });
+                
+                console.log(`Demo Alarm set for ${medicines[0].name} at ${alarmHour}:${alarmMin}`);
+            }
 
         // 3. Fetch Data (UPDATED WITH ERROR DISPLAY)
         async function fetchRealData() {
@@ -239,76 +302,7 @@
             updateClock();
         }
 
-        // // ==========================================
-        // // 5. SCANNER VERIFICATION LOGIC
-        // // ==========================================
-
-        // window.triggerScanner = function(medName, storageKey) {
-        //     window.expectedMedName = medName;
-        //     window.expectedStorageKey = storageKey;
-
-        //     // Show Scanner UI
-        //     document.getElementById('dashboard-view').style.display = "none";
-        //     document.getElementById('scanner-view').style.display = "flex";
-        //     document.getElementById('scanner-title').innerText = `Scan ${medName}`;
-            
-        //     window.speakBeti(`Dadaji, kripya ${medName} scan karein.`);
-
-        //     html5QrCode = new Html5Qrcode("reader");
-        //     html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, window.onScanSuccess)
-        //     .catch(err => alert("Camera blocked. Please allow camera permissions."));
-        // }
-
-        // window.onScanSuccess = function(decodedText) {
-        //     try {
-        //         const scannedData = JSON.parse(decodedText); 
-        //         html5QrCode.stop(); // Stop camera
-
-        //         // Check Match (n === Expected Name)
-        //         if (scannedData.n.toLowerCase() === window.expectedMedName.toLowerCase()) {
-        //             window.speakBeti(`Ji Dadaji! Yeh ${window.expectedMedName} hi hai. Sahi dawai.`);
-        //             document.getElementById('beti-bubble').style.backgroundColor = "#28a745";
-                    
-        //             // Mark as taken
-        //             localStorage.setItem(window.expectedStorageKey, 'true');
-
-        //             // Go back & update UI after 4 seconds
-        //             setTimeout(() => { 
-        //                 window.closeScannerView(); 
-        //                 fetchRealData(); // Re-fetch to show the new green tick
-        //             }, 4000);
-
-        //         } else {
-        //             // Mismatch
-        //             window.speakBeti(`Rukiye Dadaji! Aapko ${window.expectedMedName} leni thi, par yeh ${scannedData.n} hai.`);
-        //             document.getElementById('beti-bubble').style.backgroundColor = "#dc3545";
-        //             setTimeout(() => { window.closeScannerView(); }, 4000);
-        //         }
-        //     } catch (e) {
-        //         console.log("Invalid QR Data");
-        //         window.speakBeti("Maaf kijiyega, main is QR code ko samajh nahi paayi.");
-        //         setTimeout(() => { window.closeScannerView(); }, 3000);
-        //     }
-        // }
-
-        // window.closeScannerView = function() {
-        //     if(html5QrCode) html5QrCode.stop().catch(e => console.log(e));
-        //     document.getElementById('scanner-view').style.display = "none";
-        //     document.getElementById('dashboard-view').style.display = "block";
-        //     document.getElementById('beti-bubble').style.backgroundColor = "var(--pink-beti)"; // Reset color
-        // }
-
-        // window.logoutPatient = function() {
-        //     localStorage.removeItem("activeUser");
-        //     window.location.href = "index.html";
-        // };
-
-        // // Start
-        // window.onload = fetchRealData;
-
-        // ==========================================
-        // 5. SCANNER VERIFICATION LOGIC (BUG FIXED)
-        // ==========================================
+        
         
         // ==========================================
         // 5. SCANNER VERIFICATION LOGIC (BUG FIXED)
@@ -327,7 +321,7 @@
             document.getElementById('scanner-view').style.display = "flex";
             document.getElementById('scanner-title').innerText = `Scan ${medName}`;
             
-            window.speakBeti(`Dadaji, kripya ${medName} scan karein.`);
+            window.speakBeti(`AAP, kripya ${medName} scan karein.`);
 
             html5QrCode = new Html5Qrcode("reader");
             html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, window.onScanSuccess)
@@ -344,7 +338,7 @@
 
                 // Check Match (n === Expected Name)
                 if (scannedData.n.toLowerCase() === window.expectedMedName.toLowerCase()) {
-                    window.speakBeti(`Ji Dadaji! Yeh ${window.expectedMedName} hi hai. Isse ${window.expectedInstruction} lena hai.`);
+                    window.speakBeti(`Ji Yeh ${window.expectedMedName} hi hai. Isse ${window.expectedInstruction} lena hai.`);
                     document.getElementById('beti-bubble').style.backgroundColor = "#28a745";
                     
                     // Mark as taken
@@ -358,7 +352,7 @@
 
                 } else {
                     // Mismatch
-                    window.speakBeti(`Rukiye Dadaji! Aapko ${window.expectedMedName} leni thi, par yeh ${scannedData.n} hai.`);
+                    window.speakBeti(`Rukiye  Aapko ${window.expectedMedName} leni thi, par yeh ${scannedData.n} hai.`);
                     document.getElementById('beti-bubble').style.backgroundColor = "#dc3545";
                     
                     setTimeout(() => { window.closeScannerView(); }, 4000);
@@ -391,8 +385,7 @@
         // Start
         window.onload = fetchRealData;
     </script>
+    <script src="beti.js"></script>
 </body>
 </html>
-    </script>
-</body>
-</html>
+    
