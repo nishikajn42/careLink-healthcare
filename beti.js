@@ -1,95 +1,121 @@
-// beti.js - The "Digital Beti" Logic
+// beti.js - Real AI "Digital Beti" (Powered by Gemini)
 
-// Aawaz nikalne ka function (Text to Speech)
-function speakBeti(text, callback) {
+// 🛑 HACKATHON KE LIYE APNI API KEY YAHAN DAALEIN 🛑
+const GEMINI_API_KEY = "AIzaSyDCgGjWxYOAb1gki2WJFaXAOr5ZQzhMrVU"; 
+
+// 1. Aawaz nikalne ka function (Beti bolegi)
+function speakBeti(text) {
     const bubble = document.getElementById('beti-bubble');
     bubble.style.display = 'block';
-    bubble.innerText = text;
+    bubble.innerText = text; // Screen par text dikhega
 
     const synth = window.speechSynthesis;
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'hi-IN'; // Hindi/Hinglish
-    utterance.rate = 0.9;     // Dadaji ke liye thoda aaram se
-
-    utterance.onend = function() {
-        if(callback) callback(); // Bolne ke baad agar kuch sunna hai
-    };
+    utterance.lang = 'hi-IN'; // Hindi/Hinglish aawaz
+    utterance.rate = 0.9;     // Thoda aaram se bolegi
     synth.speak(utterance);
 }
 
-// Sunne ka function (Speech to Text)
-function listenDadaji(onResultCallback) {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'hi-IN';
-
-    document.getElementById('beti-bubble').innerText = "🎤 Sun rahi hu dadaji, boliye...";
-    
-    recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript.toLowerCase();
-        console.log("Dadaji ne bola:", transcript);
-        onResultCallback(transcript);
-    };
-
-    recognition.onerror = () => speakBeti("Maaf karna, main sun nahi payi. Button dobara dabayein.");
-    recognition.start();
-}
-
-// Element ko chamkane (Highlight) karne ka function
+// 2. Element ko chamkane (Highlight) karne ka function
 function highlightAndScroll(elementId) {
     // Purane highlight hatao
     document.querySelectorAll('.beti-highlight').forEach(el => el.classList.remove('beti-highlight'));
     
-    const el = document.getElementById(elementId);
-    if(el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        el.classList.add('beti-highlight');
+    if (elementId && elementId !== "null" && elementId !== "") {
+        const el = document.getElementById(elementId);
+        if(el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            el.classList.add('beti-highlight');
+        }
     }
 }
 
-// MAIN LOGIC: Button dabane par kya hoga
-function activateBeti() {
+// 3. Asli AI Dimaag (Gemini API Call)
+async function fetchAIResponse(userSaid) {
+    const bubble = document.getElementById('beti-bubble');
+    bubble.style.display = 'block';
+    bubble.innerText = "Soch rahi hu dadaji..."; // Jab tak AI soch raha hai
+
+    // Website ka current state AI ko batana
     const currentPage = window.location.pathname;
-
-    // --- LOGIC FOR HOME PAGE (index.html) ---
+    let uiContext = "User hospital ki CareLink website par hai.";
+    
+    // Page ke hisaab se context badlo (Isme apne IDs daal lena)
     if (currentPage.includes('index.html') || currentPage === '/') {
-        speakBeti("Namaste! Aapko site ghoomni hai, ya phir login karna hai?", () => {
-            listenDadaji((kaha) => {
-                if (kaha.includes("login") || kaha.includes("patient")) {
-                    speakBeti("Theek hai, main upar login button ko chamka rahi hu. Uspar click kijiye.");
-                    highlightAndScroll("login-btn"); // Aapke HTML mein login button ki id="login-btn" honi chahiye
-                } else {
-                    speakBeti("Theek hai, aap aaram se site dekhiye.");
-                }
-            });
-        });
+        uiContext += " Abhi Home Page par hain. Login karne ke liye 'login-btn' ID hai.";
+    } else if (currentPage.includes('patient.html')) {
+        uiContext += " Abhi Patient Dashboard par hain. Dawai ke liye 'dawa-section' ID hai, Doctor ke liye 'doctor-section' ID hai.";
     }
 
-    // --- LOGIC FOR LOGIN FORM (index.html par hi agar login form hai) ---
-    // Note: Agar unhone login click kar diya, toh form dikhega. Usme input ki id="patient-id-input" honi chahiye.
-    else if (currentPage.includes('login.html') /* Ya jo bhi aapka login modal ho */) {
-         speakBeti("Apne parche par right side mein dekhiye, aapka ID likha hai. Mujhe bol kar bataiye ya yahan likh dijiye.", () => {
-            highlightAndScroll("patient-id-input");
-            listenDadaji((id) => {
-                document.getElementById("patient-id-input").value = id.replace(/\s/g, ''); // Space hata kar ID likh degi
-                speakBeti("Maine aapka ID likh diya hai, ab submit daba dijiye!");
-            });
-         });
-    }
+    const systemPrompt = `
+        Aap ek pyari aur madadgaar 'Digital Beti' hain jo bujurg (elderly) patients ko CareLink website chalana sikhati hai.
+        Aapko bahut izzat se, jaise ek poti apne dadaji/dadiji se baat karti hai, waise Hinglish mein baat karni hai.
+        Current Page Context: ${uiContext}
+        
+        Niyam (Rules):
+        1. Agar user kuch aam baat kare (jaise "Kaise ho?"), toh natural jawab do.
+        2. Agar user site ke baare mein puche (jaise "Login kahan hai?" ya "Dawai kahan hai?"), toh unhe batao aur us ID ka naam json mein do taaki wo highlight ho sake.
+        
+        Jawab STRICTLY ek JSON format mein hona chahiye jisme 2 keys hon:
+        {
+            "reply": "Aapki boli hui line Hinglish mein",
+            "highlight_id": "HTML tag ki ID (jaise 'login-btn') ya fir null agar kuch highlight nahi karna"
+        }
+    `;
 
-    // --- LOGIC FOR PATIENT DASHBOARD (patient.html) ---
-    else if (currentPage.includes('patient.html') || currentPage.includes('paitent.html')) {
-        speakBeti("Dadaji, aapka dashboard khul gaya hai. Batayein aapko kya dekhna hai? Apni dawai, ya doctor ka number?", () => {
-            listenDadaji((kaha) => {
-                if (kaha.includes("dawa") || kaha.includes("dawai") || kaha.includes("medicine")) {
-                    speakBeti("Yeh lijiye, main aapke dawai wale parche ko chamka rahi hu.");
-                    highlightAndScroll("dawa-section"); // HTML mein dawa section ki id="dawa-section" honi chahiye
-                } 
-                else if (kaha.includes("doctor") || kaha.includes("number")) {
-                    speakBeti("Yeh raha doctor sahab ka number.");
-                    highlightAndScroll("doctor-section"); // id="doctor-section"
-                }
-            });
+    try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: systemPrompt + "\nDadaji ne kaha: " + userSaid }] }]
+            })
         });
+
+        const data = await response.json();
+        
+        // Gemini ke text se JSON nikalna
+        let aiTextResponse = data.candidates[0].content.parts[0].text;
+        aiTextResponse = aiTextResponse.replace(/```json/g, "").replace(/```/g, "").trim();
+        
+        const aiJson = JSON.parse(aiTextResponse);
+
+        // Highlight karna aur bolna
+        highlightAndScroll(aiJson.highlight_id);
+        speakBeti(aiJson.reply);
+
+    } catch (e) {
+        console.error("Error:", e);
+        speakBeti("Maaf karna dadaji, mera internet connection thoda dhama chal raha hai.");
     }
+}
+
+// 4. MAIN LOGIC: Button dabane par sunna shuru karna
+function activateBeti() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'hi-IN'; // Hindi sunne ke liye
+
+    const bubble = document.getElementById('beti-bubble');
+    bubble.style.display = 'block';
+    bubble.innerText = "🎤 Boliye, main sun rahi hu...";
+    
+    // Main button ko thoda daba hua dikhane ke liye
+    document.getElementById("beti-btn").style.transform = "scale(0.9)";
+
+    recognition.onresult = (event) => {
+        document.getElementById("beti-btn").style.transform = "scale(1)";
+        const transcript = event.results[0][0].transcript;
+        console.log("Patient asked:", transcript);
+        
+        // Aawaz text mein badal gayi, ab isko AI (Gemini) ko bhejo
+        fetchAIResponse(transcript);
+    };
+
+    recognition.onerror = () => {
+        document.getElementById("beti-btn").style.transform = "scale(1)";
+        speakBeti("Main theek se sun nahi payi, kripya dobara button dabakar boliye.");
+    };
+
+    recognition.start();
 }
