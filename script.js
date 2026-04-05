@@ -47,12 +47,13 @@
   });
 
   // ── Staff Tabs ────────────────────────────────
-  function switchTab(role) {
+  function switchTab(role, btn) { // 'btn' parameter add kiya
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-    event.currentTarget.classList.add('active');
+    
+    btn.classList.add('active'); // Current button ko active karo
     document.getElementById('tab-' + role).classList.add('active');
-  }
+}
 
 
   // ── Scroll Reveal ─────────────────────────────

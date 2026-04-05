@@ -29,10 +29,14 @@ window.loginPatient = async function(event) {
     loginBtn.style.backgroundColor = "#666";
     loginBtn.disabled = true;
 
+
     try {
         // Step 2: Check in Firebase if Patient ID exists
+        console.log("Searching for Patient ID:", patientId); // Debug line
         const q = query(collection(db, "patients"), where("username", "==", patientId));
         const querySnapshot = await getDocs(q);
+
+        console.log("Snapshot empty?", querySnapshot.empty); // Agar ye TRUE aaya matlab ID galat hai
 
         if (!querySnapshot.empty) {
             // Success! Patient ID exists
