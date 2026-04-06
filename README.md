@@ -98,7 +98,7 @@ It helps elderly patients:
 ---
 
 ## 👩‍💻 Author
-Developed as part of a hackathon project.
+Designed and Developed by Nishika jain.
 
 ---
 

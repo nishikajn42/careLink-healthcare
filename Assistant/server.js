@@ -21,7 +21,7 @@ app.post('/api/ask-beti', async (req, res) => {
         console.log("🗣️ User said:", userMessage); // Yeh terminal mein print hoga
 
         const model = genAI.getGenerativeModel({ 
-            model: "gemini-1.5-flash", 
+            model: "gemini-2.5-flash", 
             systemInstruction: `You are 'Digital Beti', a voice assistant for Sanjeevni Hospital's 'CareLink' platform designed for elderly patients. 
             Respond kindly in simple Hindi/English. 
             ALWAYS return your response strictly as a JSON object with two keys:
