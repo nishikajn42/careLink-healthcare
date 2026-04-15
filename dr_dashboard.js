@@ -122,7 +122,7 @@ window.removeMedicineRow = function(rowId) {
     document.getElementById(rowId).remove(); 
 };
 
-// SAVE CONSULTATION TO FIREBASE
+// SAVE CONSULTATION TO FIREBASE (Updated with Auto-Timing Logic)
 window.saveConsultation = async function() {
     if(!currentPatientDocId) return;
 
@@ -136,14 +136,53 @@ window.saveConsultation = async function() {
 
     const medicineRows = document.querySelectorAll('.medicine-row');
     let medicinesList = [];
+    
     medicineRows.forEach(row => {
         const name = row.querySelector('.med-name').value;
+        const instruction = row.querySelector('.med-instruction').value; // "After Meal", "Before Meal"
+        const freq = row.querySelector('.med-freq').value; // "1 - 0 - 1", etc.
+        const days = row.querySelector('.med-days').value;
+
         if(name.trim() !== "") {
+            let times = [];
+            let labels = [];
+            
+            // SMART TIMING LOGIC based on Meal Instructions
+            let isAfterMeal = instruction === "After Meal";
+
+            if (freq === "1 - 0 - 1") { // Morning & Night
+                times.push(isAfterMeal ? "11:00" : "08:00");
+                labels.push(`morning ${instruction.toLowerCase()}`);
+                
+                times.push(isAfterMeal ? "19:30" : "18:00");
+                labels.push(`evening ${instruction.toLowerCase()}`);
+            } 
+            else if (freq === "1 - 1 - 1") { // Thrice a day
+                times.push(isAfterMeal ? "11:00" : "08:00");
+                labels.push(`morning ${instruction.toLowerCase()}`);
+                
+                times.push(isAfterMeal ? "14:30" : "13:00"); // 1 PM or 2:30 PM
+                labels.push(`afternoon ${instruction.toLowerCase()}`);
+                
+                times.push(isAfterMeal ? "19:30" : "18:00");
+                labels.push(`evening ${instruction.toLowerCase()}`);
+            } 
+            else if (freq === "1 - 0 - 0") { // Morning Only
+                times.push(isAfterMeal ? "11:00" : "08:00");
+                labels.push(`morning ${instruction.toLowerCase()}`);
+            } 
+            else if (freq === "0 - 0 - 1") { // Night Only
+                times.push(isAfterMeal ? "19:30" : "18:00");
+                labels.push(`evening ${instruction.toLowerCase()}`);
+            }
+
             medicinesList.push({
                 name: name, 
-                instruction: row.querySelector('.med-instruction').value,
-                freq: row.querySelector('.med-freq').value, 
-                days: row.querySelector('.med-days').value
+                instruction: instruction,
+                freq: freq, 
+                days: days,
+                times: times,    // Array of specific times e.g., ["11:00", "19:30"]
+                labels: labels   // Array of descriptive text for Beti
             });
         }
     });
@@ -215,7 +254,7 @@ function setupPrintTemplate(patient, rx) {
 // LOAD OLD PATIENTS HISTORY
 window.loadOldPatients = async function() {
     const listEl = document.getElementById('doc-old-patients-list');
-    listEl.innerHTML = "<tr><td colspan='5' style='text-align: center;'>Loading...</td></tr>"; 
+    listEl.innerHTML = "<tr><td colspan='6' style='text-align: center;'>Loading...</td></tr>"; 
 
     try {
         const q = query(collection(db, "patients"), orderBy("timestamp", "desc"));
@@ -229,12 +268,25 @@ window.loadOldPatients = async function() {
             if (p.prescription && p.prescription.doctor === docName) {
                 count++;
                 let fDate = p.prescription.followUp ? new Date(p.prescription.followUp).toLocaleDateString() : 'None';
+                
+                // NEW: Extract medicines and format them nicely
+                let medsHtml = "<ul>";
+                if(p.prescription.medicines && p.prescription.medicines.length > 0) {
+                    p.prescription.medicines.forEach(m => {
+                        medsHtml += `<li>${m.name} (${m.freq})</li>`;
+                    });
+                } else {
+                    medsHtml += "<li>None</li>";
+                }
+                medsHtml += "</ul>";
+
                 htmlStr += `
                     <tr>
                         <td>${p.prescription.date}</td>
                         <td><b>${p.username}</b></td>
                         <td>${p.name}</td>
                         <td>${p.prescription.diagnosis || 'N/A'}</td>
+                        <td>${medsHtml}</td> 
                         <td style="color: #e63946; font-weight: bold;">${fDate}</td>
                     </tr>
                 `;
@@ -242,13 +294,14 @@ window.loadOldPatients = async function() {
         });
 
         if (count === 0) {
-            listEl.innerHTML = "<tr><td colspan='5' style='text-align: center;'>You have no consulted patients yet.</td></tr>";
+            listEl.innerHTML = "<tr><td colspan='6' style='text-align: center;'>You have no consulted patients yet.</td></tr>";
         } else {
+            // Also need to update the table header in HTML to add the new column!
             listEl.innerHTML = htmlStr;
         }
 
     } catch (error) {
         console.error("Error loading history:", error);
-        listEl.innerHTML = "<tr><td colspan='5' style='text-align: center; color: red;'>Failed to load history.</td></tr>";
+        listEl.innerHTML = "<tr><td colspan='6' style='text-align: center; color: red;'>Failed to load history.</td></tr>";
     }
 };

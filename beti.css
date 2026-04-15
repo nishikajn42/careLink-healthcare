@@ -26,14 +26,14 @@
     text-align: right;
 }
 
-/* Main Gol Button */
+/* Main Gol Button - MADE LARGER */
 #beti-btn {
-    width: 110px;
-    height: 110px;
+    width: 150px; /* Increased from 110px */
+    height: 150px; /* Increased from 110px */
     background: #ff4081;
     border: none;
     border-radius: 50%;
-    font-size: 30px;
+    font-size: 50px; /* Bigger emoji/icon */
     box-shadow: 0 4px 15px rgba(255, 64, 129, 0.5);
     cursor: pointer;
     animation: pulse 2s infinite;

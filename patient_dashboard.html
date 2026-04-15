@@ -7,68 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/html5-qrcode"></script>
     <link rel="stylesheet" href="beti.css">
-    <style>
-        :root {
-            --primary: #00766c;
-            --bg-color: #f4f7f6;
-            --card-bg: #ffffff;
-            --text-main: #333;
-            --text-muted: #666;
-            --box-pending: #f8f9fa;
-            --box-pending-border: #e2e8f0;
-            --box-taken: #e6fced;
-            --box-taken-border: #86efac;
-            --box-taken-text: #166534;
-            --pink-beti: #ff4bb4;
-        }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; color: var(--text-main); }
-        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
-
-        .navbar { display: flex; justify-content: space-between; align-items: center; background: var(--primary); color: white; padding: 15px 25px; border-radius: 0 0 15px 15px; }
-        .navbar h2 { margin: 0; font-size: 1.4rem; }
-        .nav-right { display: flex; align-items: center; gap: 20px; }
-        .logout-btn { background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-
-        .hero-section { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 20px; border-radius: 12px; margin-top: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .greeting h1 { margin: 0; font-size: 1.8rem; color: var(--primary); }
-        .greeting p { margin: 5px 0 0 0; color: var(--text-muted); font-weight: 500; }
-        .clock-container { text-align: right; }
-        .clock { font-size: 2rem; font-weight: bold; font-family: monospace; }
-        .date-text { color: var(--text-muted); font-size: 0.9rem; margin-top: 5px; }
-
-        .doctor-card { background: var(--card-bg); padding: 15px 20px; border-radius: 12px; border-left: 5px solid var(--primary); margin-top: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .doctor-card h3 { margin: 0 0 5px 0; color: var(--primary); }
-        .doctor-card p { margin: 0; color: var(--text-muted); }
-
-        .section-title { margin: 30px 0 15px 0; font-size: 1.2rem; border-bottom: 2px solid #ddd; padding-bottom: 5px; }
-        .all-meds-list { display: flex; gap: 15px; flex-wrap: wrap; }
-        .med-tag { background: #e0f2f1; color: var(--primary); padding: 8px 15px; border-radius: 20px; font-weight: 600; font-size: 0.9rem; }
-
-        /* Tracker Grid */
-        .tracker-container { background: var(--card-bg); padding: 25px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-top: 20px; }
-        .tracker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .tracker-header h3 { margin: 0; }
-        .badge { background: #ff4d4f; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
-        
-        .dose-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-top: 15px; }
-        .dose-box { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: bold; font-size: 1.1rem; border: 2px solid; cursor: pointer; position: relative;}
-        
-        .box-taken { background: var(--box-taken); border-color: var(--box-taken-border); color: var(--box-taken-text); pointer-events: none; }
-        .box-taken::after { content: '\f058'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: var(--success); position: absolute; top: -8px; right: -8px; background: white; border-radius: 50%; color: #28a745; font-size: 1.2rem;}
-        .box-pending { background: var(--box-pending); border-color: var(--box-pending-border); color: var(--text-muted); transition: 0.2s; }
-        .box-pending:hover { transform: scale(1.05); border-color: var(--primary); }
-
-        /* Scanner View UI */
-        #scanner-view { display: none; background: rgba(0,0,0,0.95); position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; flex-direction: column; align-items: center; justify-content: center; color: white; }
-        #reader { width: 100%; max-width: 400px; border-radius: 15px; overflow: hidden; background: white; }
-        .close-btn { position: absolute; top: 20px; right: 30px; font-size: 2rem; color: white; cursor: pointer; }
-        .beti-bubble { margin-top: 20px; padding: 15px 25px; background: var(--pink-beti); color: white; border-radius: 25px; font-weight: bold; font-size: 1.1rem; text-align: center; max-width: 80%; }
-        .box-taken { 
-            background-color: #e6fced !important; 
-            border-color: #86efac !important; 
-            color: #166534 !important; 
-        }
-    </style>
+    <link rel="stylesheet" href="patient_dashboard.css">
 </head>
 <body>
 
@@ -76,7 +15,7 @@
         <nav class="navbar">
             <h2>CareLink | Patient Dashboard</h2>
             <div class="nav-right">
-                <span id="nav-patient-id">ID: Fetching...</span>
+                <span id="nav-patient-id">ID:</span>
                 <button class="logout-btn" onclick="logoutPatient()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
             </div>
         </nav>
@@ -85,20 +24,24 @@
         </div>
     </div>
 
-    <div id="scanner-view">
+    <div id="scanner-view" style="display: none;">
         <i class="fa-solid fa-xmark close-btn" onclick="window.closeScannerView()"></i>
         
-        <h2 style="margin-bottom: 20px;" id="scanner-title">Scan Medicine</h2>
-        <div id="reader"></div>
-        <div class="beti-bubble" id="beti-bubble">
-            <i class="fa-solid fa-robot"></i> Dadaji, kripya dawai ka QR code dikhayein...
+        <h2 style="margin-bottom: 20px; color: white; text-align: center;" id="scanner-title">Scan Medicine</h2>
+        <div id="reader" style="width: 100%; max-width: 400px; margin: 0 auto; background: white; border-radius: 15px; overflow: hidden;"></div>
+        
+        <div class="beti-bubble" id="scanner-beti-bubble" style="margin-top: 20px; text-align: center;">
+            <i class="fa-solid fa-robot"></i> Kripya dawai ka QR code dikhayein...
         </div>
     </div>
-    <div id="beti-widget">
-        <div id="beti-bubble">Namaste!</div>
-        <button id="beti-btn" onclick="activateBeti()">👧</button>
-    </div>
 
+    <div id="beti-widget" style="position: fixed; bottom: 30px; right: 30px; display: flex; align-items: flex-end; gap: 15px; z-index: 9999;">
+        <button id="lang-toggle-btn" onclick="window.toggleLang()" style="background: #00766c; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 1.2rem; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: 0.3s; margin-bottom: 25px;">🌐 EN</button>
+        
+        <div id="beti-bubble" style="background: #ff4bb4; color: white; padding: 15px 20px; border-radius: 20px 20px 0px 20px; margin-bottom: 50px; font-size: 1.2rem; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: none; max-width: 300px; text-align: right;">Hello!</div>
+        
+        <button id="beti-btn" onclick="window.activateBeti()" style="background: #ff4bb4; border: none; border-radius: 50%; width: 100px; height: 100px; font-size: 50px; cursor: pointer; box-shadow: 0 6px 20px rgba(255, 75, 180, 0.6); display: flex; align-items: center; justify-content: center; transition: transform 0.2s;">👧</button>
+    </div>
 
     <script type="module">
         import { firebaseConfig } from './firebase-config.js';
@@ -116,31 +59,25 @@
         window.expectedStorageKey = null;
         window.expectedInstruction = null;
         window.isProcessingScan = false;
+        
         window.todaysAlarms = [];
         window.alreadyReminded = {};
-
-        window.speakBeti = function(text) {
-            const bubble = document.getElementById('beti-bubble');
-            if(bubble) bubble.innerHTML = `<i class="fa-solid fa-robot"></i> ${text}`;
-            const synth = window.speechSynthesis;
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'hi-IN';
-            synth.speak(utterance);
-        };
-
-        if ("Notification" in window && Notification.permission !== "granted") {
-            Notification.requestPermission();
-        }
 
         window.checkReminders = function(currentHour, currentMinute) {
             let currentTimeStr = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
             window.todaysAlarms.forEach(alarm => {
-                if (alarm.time === currentTimeStr && !window.alreadyReminded[alarm.medName]) {
-                    window.speakBeti(`AAP, time ho gaya hai! Kripya apni ${alarm.medName} dawai le lijiye.`);
+                if (alarm.time === currentTimeStr && !window.alreadyReminded[alarm.medName + alarm.time]) {
+                    
+                    // FIXED: Now uses the global window.speak function from beti.js
+                    window.speak(
+                        `It is time! Please take your ${alarm.label} dose of ${alarm.medName}.`, 
+                        `Time ho gaya hai! Kripya apni ${alarm.medName} ki ${alarm.label} wali dawai le lijiye.`
+                    );
+
                     if (Notification.permission === "granted") {
-                        new Notification("Dawai ka Samay! ⏰", { body: `AAP, aapki ${alarm.medName} lene ka waqt ho gaya hai.` });
+                        new Notification("Medicine Time! ⏰", { body: `It is time for your ${alarm.label} dose of ${alarm.medName}.` });
                     }
-                    window.alreadyReminded[alarm.medName] = true;
+                    window.alreadyReminded[alarm.medName + alarm.time] = true;
                 }
             });
         };
@@ -179,7 +116,11 @@
             const container = document.getElementById('main-content');
             const durationDays = patientData.prescription?.durationDays || 5; 
             const medicines = patientData.prescription?.medicines || [];
+            
+            document.getElementById('nav-patient-id').innerText = "ID: " + activePatientUser;
+
             updateClock();
+            window.todaysAlarms = []; 
 
             let html = `
                 <div class="hero-section">
@@ -198,11 +139,37 @@
 
             medicines.forEach((med) => {
                 let timesPerDay = 1; 
-                let freqText = (med.freq || "").toLowerCase();
-                if(freqText.includes("twice") || freqText.includes("1-0-1")) timesPerDay = 2;
-                else if(freqText.includes("thrice") || freqText.includes("1-1-1")) timesPerDay = 3;
+                
+                if (med.times && Array.isArray(med.times) && med.times.length > 0) {
+                    timesPerDay = med.times.length;
+                    
+                    med.times.forEach((exactTime, index) => {
+                        let spokenLabel = med.labels && med.labels[index] ? med.labels[index] : "";
+                        window.todaysAlarms.push({ 
+                            time: exactTime, 
+                            medName: med.name, 
+                            label: spokenLabel 
+                        });
+                    });
+                } else {
+                    let freqText = (med.freq || "").toLowerCase();
+                    if(freqText.includes("twice") || freqText.includes("1-0-1")) {
+                        timesPerDay = 2;
+                        window.todaysAlarms.push({ time: "09:00", medName: med.name, label: "morning" });
+                        window.todaysAlarms.push({ time: "21:00", medName: med.name, label: "night" });
+                    } else if(freqText.includes("thrice") || freqText.includes("1-1-1")) {
+                        timesPerDay = 3;
+                        window.todaysAlarms.push({ time: "09:00", medName: med.name, label: "morning" });
+                        window.todaysAlarms.push({ time: "14:00", medName: med.name, label: "afternoon" });
+                        window.todaysAlarms.push({ time: "21:00", medName: med.name, label: "night" });
+                    } else {
+                        window.todaysAlarms.push({ time: "09:00", medName: med.name, label: "scheduled" }); 
+                    }
+                }
 
-                let totalDoses = durationDays * timesPerDay;
+                // Parse the specific days for THIS medicine
+                let medDuration = parseInt(med.days) || 5; 
+                let totalDoses = medDuration * timesPerDay;
                 
                 html += `
                 <div class="tracker-container">
@@ -219,7 +186,6 @@
                     let boxClass = isTaken ? "box-taken" : "box-pending";
                     let clickAction = isTaken ? "" : `onclick="window.triggerScanner('${med.name}', '${storageKey}', '${med.instruction || med.freq}')"`;
                     
-                    // Green Tick Icon Logic
                     let innerContent = isTaken ? `<i class="fa-solid fa-check" style="color:white;"></i>` : i;
                     let style = isTaken ? "background-color:#28a745; color:white; border-color:#28a745;" : "border: 2px solid #ddd;";
 
@@ -237,11 +203,37 @@
             window.expectedStorageKey = storageKey;
             window.expectedInstruction = instruction;
             window.isProcessingScan = false;
+            
+            // Adjust UI for scanner
             document.getElementById('dashboard-view').style.display = "none";
-            document.getElementById('scanner-view').style.display = "flex";
-            window.speakBeti(`AAP, kripya ${medName} scan karein.`);
+            
+            const scannerView = document.getElementById('scanner-view');
+            scannerView.style.display = "flex";
+            scannerView.style.flexDirection = "column";
+            scannerView.style.alignItems = "center";
+            scannerView.style.justifyContent = "center";
+            scannerView.style.position = "fixed";
+            scannerView.style.top = "0";
+            scannerView.style.left = "0";
+            scannerView.style.width = "100%";
+            scannerView.style.height = "100%";
+            scannerView.style.background = "rgba(0,0,0,0.95)";
+            scannerView.style.zIndex = "1000";
+            
+            // FIXED: Use the new unified speak function
+            window.speak(
+                `Please scan your ${medName} medicine.`, 
+                `AAP, kripya apni ${medName} dawai scan karein.`
+            );
+
             html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, window.onScanSuccess);
+            
+            // FIXED THE CAMERA BLACK SCREEN HERE: Changed "environment" to "user" for laptop testing
+            html5QrCode.start({ facingMode: "user" }, { fps: 10, qrbox: 250 }, window.onScanSuccess)
+            .catch(err => {
+                console.error("Camera access failed:", err);
+                alert("Camera access denied or no camera found. Please check permissions.");
+            });
         };
 
         window.onScanSuccess = function(decodedText) {
@@ -250,8 +242,14 @@
             try {
                 const sData = JSON.parse(decodedText);
                 if (sData.n.toLowerCase() === window.expectedMedName.toLowerCase()) {
-                    window.speakBeti(`Ji Yeh ${window.expectedMedName} hi hai. Isse ${window.expectedInstruction} lena hai.`);
-                    document.getElementById('beti-bubble').style.backgroundColor = "#28a745";
+                    
+                    // FIXED: Use the new unified speak function
+                    window.speak(
+                        `Yes, this is ${window.expectedMedName}. You need to take it ${window.expectedInstruction}.`, 
+                        `Ji Yeh ${window.expectedMedName} hi hai. Isse ${window.expectedInstruction} lena hai.`
+                    );
+
+                    document.getElementById('scanner-beti-bubble').style.backgroundColor = "#28a745";
                     
                     localStorage.setItem(window.expectedStorageKey, 'true');
 
@@ -260,12 +258,17 @@
                         setTimeout(() => fetchRealData(), 500); 
                     }, 5000);
                 } else {
-                    window.speakBeti(`Rukiye, Aapko ${window.expectedMedName} leni thi, par yeh ${sData.n} hai.`);
-                    document.getElementById('beti-bubble').style.backgroundColor = "#dc3545";
+                    // FIXED: Use the new unified speak function
+                    window.speak(
+                        `Wait, you were supposed to take ${window.expectedMedName}, but this is ${sData.n}.`, 
+                        `Rukiye, Aapko ${window.expectedMedName} leni thi, par yeh ${sData.n} hai.`
+                    );
+
+                    document.getElementById('scanner-beti-bubble').style.backgroundColor = "#dc3545";
                     setTimeout(() => window.closeScannerView(), 4000);
                 }
             } catch (e) {
-                window.speakBeti("QR code galat hai.");
+                window.speak("Invalid QR code.", "QR code galat hai.");
                 setTimeout(() => window.closeScannerView(), 3000);
             }
         };
@@ -280,17 +283,15 @@
         };
 
         window.logoutPatient = function() {
-            localStorage.clear();
+            localStorage.removeItem("activeUser");
+            localStorage.removeItem("activeRole");
             window.location.href = "index.html";
         };
 
         window.onload = fetchRealData;
     </script>
     
-<script src="beti.js"></script>
+    <script src="beti.js"></script>
 
 </body>
 </html>
-</body>
-</html>
-    

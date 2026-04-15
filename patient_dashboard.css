@@ -1,0 +1,60 @@
+:root {
+            --primary: #00766c;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-main: #333;
+            --text-muted: #666;
+            --box-pending: #f8f9fa;
+            --box-pending-border: #e2e8f0;
+            --box-taken: #e6fced;
+            --box-taken-border: #86efac;
+            --box-taken-text: #166534;
+            --pink-beti: #ff4bb4;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; color: var(--text-main); }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+
+        .navbar { display: flex; justify-content: space-between; align-items: center; background: var(--primary); color: white; padding: 15px 25px; border-radius: 0 0 15px 15px; }
+        .navbar h2 { margin: 0; font-size: 1.4rem; }
+        .nav-right { display: flex; align-items: center; gap: 20px; }
+        .logout-btn { background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+
+        .hero-section { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 20px; border-radius: 12px; margin-top: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .greeting h1 { margin: 0; font-size: 1.8rem; color: var(--primary); }
+        .greeting p { margin: 5px 0 0 0; color: var(--text-muted); font-weight: 500; }
+        .clock-container { text-align: right; }
+        .clock { font-size: 2rem; font-weight: bold; font-family: monospace; }
+        .date-text { color: var(--text-muted); font-size: 0.9rem; margin-top: 5px; }
+
+        .doctor-card { background: var(--card-bg); padding: 15px 20px; border-radius: 12px; border-left: 5px solid var(--primary); margin-top: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .doctor-card h3 { margin: 0 0 5px 0; color: var(--primary); }
+        .doctor-card p { margin: 0; color: var(--text-muted); }
+
+        .section-title { margin: 30px 0 15px 0; font-size: 1.2rem; border-bottom: 2px solid #ddd; padding-bottom: 5px; }
+        .all-meds-list { display: flex; gap: 15px; flex-wrap: wrap; }
+        .med-tag { background: #e0f2f1; color: var(--primary); padding: 8px 15px; border-radius: 20px; font-weight: 600; font-size: 0.9rem; }
+
+        /* Tracker Grid */
+        .tracker-container { background: var(--card-bg); padding: 25px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-top: 20px; }
+        .tracker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .tracker-header h3 { margin: 0; }
+        .badge { background: #ff4d4f; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
+        
+        .dose-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-top: 15px; }
+        .dose-box { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: bold; font-size: 1.1rem; border: 2px solid; cursor: pointer; position: relative;}
+        
+        .box-taken { background: var(--box-taken); border-color: var(--box-taken-border); color: var(--box-taken-text); pointer-events: none; }
+        .box-taken::after { content: '\f058'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: var(--success); position: absolute; top: -8px; right: -8px; background: white; border-radius: 50%; color: #28a745; font-size: 1.2rem;}
+        .box-pending { background: var(--box-pending); border-color: var(--box-pending-border); color: var(--text-muted); transition: 0.2s; }
+        .box-pending:hover { transform: scale(1.05); border-color: var(--primary); }
+
+        /* Scanner View UI */
+        #scanner-view { display: none; background: rgba(0,0,0,0.95); position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; flex-direction: column; align-items: center; justify-content: center; color: white; }
+        #reader { width: 100%; max-width: 400px; border-radius: 15px; overflow: hidden; background: white; }
+        .close-btn { position: absolute; top: 20px; right: 30px; font-size: 2rem; color: white; cursor: pointer; }
+        .beti-bubble { margin-top: 20px; padding: 15px 25px; background: var(--pink-beti); color: white; border-radius: 25px; font-weight: bold; font-size: 1.1rem; text-align: center; max-width: 80%; }
+        .box-taken { 
+            background-color: #e6fced !important; 
+            border-color: #86efac !important; 
+            color: #166534 !important; 
+        }

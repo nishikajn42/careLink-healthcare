@@ -1,117 +1,114 @@
 // ==========================================
-// beti.js (Frontend) - Complete Fixed Version
+// beti.js - The Unified Global Assistant
 // ==========================================
 
-// 1. Microphone setup to listen to the user (Yeh missing tha!)
-function activateBeti() {
-    // Browser ka speech recognition engine start karein
+window.betiLang = 'en'; // Default language
+
+// 1. Language Toggle Logic
+window.toggleLang = function() {
+    window.betiLang = window.betiLang === 'en' ? 'hi' : 'en';
+    const btn = document.getElementById('lang-toggle-btn');
+    if (btn) btn.innerText = window.betiLang === 'en' ? '🌐 EN' : '🌐 HI';
+
+    if (window.betiLang === 'en') {
+        window.speak("Language switched to English.", "Language switched to English.");
+    } else {
+        window.speak("Bhasha Hindi mein badal di gayi hai.", "Bhasha Hindi mein badal di gayi hai.");
+    }
+};
+
+// 2. Dual-Language Speaking Logic
+// Pass two strings. If she's in English mode, she reads the first. Hindi, the second.
+window.speak = function(enText, hiText) {
+    window.speechSynthesis.cancel(); // Stop anything currently speaking
+    
+    // If a Hindi translation is provided and we are in Hindi mode, use it. 
+    // Otherwise, use the enText (useful for Gemini responses which return a single string).
+    const textToSpeak = (window.betiLang === 'hi' && hiText) ? hiText : enText;
+    
+    const bubble = document.getElementById('beti-bubble');
+    if(bubble) {
+        bubble.innerHTML = `<i class="fa-solid fa-robot"></i> ` + textToSpeak;
+        bubble.style.display = "block";
+        setTimeout(() => bubble.style.display = "none", 8000); // Auto hide bubble after 8s
+    }
+
+    const speech = new SpeechSynthesisUtterance(textToSpeak);
+    speech.lang = window.betiLang === 'hi' ? 'hi-IN' : 'en-IN';
+    speech.volume = 1;     
+    speech.rate = window.betiLang === 'hi' ? 0.9 : 1; // Slightly slower for Hindi clarity      
+    
+    window.speechSynthesis.speak(speech);
+};
+
+// 3. Microphone Logic
+window.activateBeti = function() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     
     if (!SpeechRecognition) {
-        alert("Maaf kijiye, aapka browser voice support nahi karta. Chrome use karein.");
+        alert("Browser does not support voice recognition. Please use Google Chrome.");
         return;
     }
 
     const recognition = new SpeechRecognition();
-    recognition.lang = 'hi-IN'; // Hindi aur English dono samajh legi
+    // Dynamically set mic to listen for English or Hindi based on toggle!
+    recognition.lang = window.betiLang === 'hi' ? 'hi-IN' : 'en-IN'; 
     recognition.interimResults = false;
 
     const bubble = document.getElementById('beti-bubble');
     
-    // Jab mic chalu ho
     recognition.onstart = function() {
         console.log("🎤 Mic on: Listening...");
-        if(bubble) bubble.innerText = "Boliye, main sun rahi hoon...";
+        if(bubble) {
+            bubble.style.display = "block";
+            bubble.innerText = window.betiLang === 'hi' ? "Boliye, main sun rahi hoon..." : "Listening...";
+        }
     };
 
-    // Jab user bolna band kare aur text mil jaye
     recognition.onresult = function(event) {
         const transcript = event.results[0][0].transcript;
-        console.log("🗣️ Aapne kaha:", transcript);
-        if(bubble) bubble.innerText = "Soch rahi hoon...";
+        console.log("🗣️ User said:", transcript);
+        if(bubble) bubble.innerText = window.betiLang === 'hi' ? "Soch rahi hoon..." : "Thinking...";
         
-        // Jo bola gaya hai, use backend/Gemini ko bhejein
         askDigitalBeti(transcript);
     };
 
-    // Agar koi error aaye
     recognition.onerror = function(event) {
         console.error("🔇 Mic error:", event.error);
-        if(bubble) bubble.innerText = "Awaaz nahi aayi, fir se button dabayein.";
+        if(bubble) bubble.innerText = window.betiLang === 'hi' ? "Awaaz nahi aayi, fir dabayein." : "Didn't catch that, click again.";
     };
 
-    // Sunna shuru karein
     recognition.start();
-}
+};
 
-// 2. Sending data to your backend
+// 4. Send to Gemini Node.js Backend
 async function askDigitalBeti(userTranscript) {
     const bubble = document.getElementById('beti-bubble');
     try {
         const response = await fetch('http://localhost:3000/api/ask-beti', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ message: userTranscript })
+            headers: { 'Content-Type': 'application/json' },
+            // Send the language so Gemini knows how to reply!
+            body: JSON.stringify({ message: userTranscript, language: window.betiLang })
         });
 
         const data = await response.json();
-        
         console.log("🤖 Beti replied:", data.reply);
-        console.log("🎯 Highlight Element:", data.highlight_id);
 
-        // UI Bubble update karein
-        if(bubble) bubble.innerText = data.reply; 
+        // Speak the Gemini response
+        window.speak(data.reply); 
 
-        // 1. Speak the reply
-        speak(data.reply); 
-
-        // 2. Highlight the UI element for dadaji/dadiji
+        // Optional UI highlighting
         if (data.highlight_id) {
-            highlightAndScroll(data.highlight_id);
+            const element = document.getElementById(data.highlight_id);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                element.classList.add('beti-highlight');
+                setTimeout(() => element.classList.remove('beti-highlight'), 4000);
+            }
         }
-
     } catch (error) {
-        console.error("❌ Error communicating with backend:", error);
-        if(bubble) bubble.innerText = "Server se connect nahi ho pa raha hai.";
-    }
-}
-
-// 3. Speaking the text
-function speak(text) {
-    window.speechSynthesis.cancel();
-    
-    const speech = new SpeechSynthesisUtterance(text);
-    speech.lang = 'hi-IN'; 
-    speech.volume = 1;     
-    speech.rate = 1;       
-    speech.pitch = 1;      
-
-    speech.onstart = () => console.log("🔊 Beti bolna shuru kar rahi hai...");
-    speech.onerror = (e) => console.error("🔇 Speech error aayi:", e.error);
-
-    window.speechSynthesis.speak(speech);
-}
-
-// 4. Highlighting the button/section
-function highlightAndScroll(elementId) {
-    const element = document.getElementById(elementId);
-    if (element) {
-        // Us element tak scroll karein
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        
-        // Purane highlights hata dein
-        document.querySelectorAll('.beti-highlight').forEach(el => el.classList.remove('beti-highlight'));
-        
-        // Naya highlight lagayein
-        element.classList.add('beti-highlight');
-
-        // Optional: 4 second baad highlight apne aap hata dein taaki UI clean rahe
-        setTimeout(() => {
-            element.classList.remove('beti-highlight');
-        }, 4000);
-    } else {
-        console.warn(`Element with ID '${elementId}' not found on the page.`);
+        console.error("❌ Backend Error:", error);
+        window.speak("Server is not responding.", "Server se connect nahi ho pa raha hai.");
     }
 }
