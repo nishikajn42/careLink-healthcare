@@ -11,8 +11,15 @@
             --box-taken-text: #166534;
             --pink-beti: #ff4bb4;
         }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; color: var(--text-main); }
-        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        
+body { 
+    font-family: 'Segoe UI', sans-serif; 
+    background-color: var(--bg-color); 
+    margin: 0; 
+    padding: 0; 
+    color: var(--text-main); 
+}
+.container { max-width: 900px; margin: 0 auto; padding: 20px; }
 
         .navbar { display: flex; justify-content: space-between; align-items: center; background: var(--primary); color: white; padding: 15px 25px; border-radius: 0 0 15px 15px; }
         .navbar h2 { margin: 0; font-size: 1.4rem; }
@@ -58,3 +65,85 @@
             border-color: #86efac !important; 
             color: #166534 !important; 
         }
+
+
+
+/* =========================================
+   FULL SCREEN ALARM STYLES
+   ========================================= */
+.urgent-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(230, 57, 70, 0.95); /* Bright Red Alert */
+    z-index: 10000; /* Always on top */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+}
+
+.urgent-modal.hidden, #qrScannerSection.hidden {
+    display: none !important;
+}
+
+.urgent-content, .qr-content {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    max-width: 90%;
+}
+
+/* Full Screen QR Scanner Overlay */
+#qrScannerSection {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(15, 41, 66, 0.95); /* Dark Blue */
+    z-index: 10001; /* On top of the red alarm */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.pulsing-icon {
+    font-size: 80px;
+    animation: pulse 1s infinite;
+}
+
+.urgent-title {
+    color: #e63946;
+    font-size: 40px;
+    font-weight: 900;
+    margin: 10px 0;
+    text-transform: uppercase;
+}
+
+.urgent-med-name { color: #0f2942; font-size: 28px; margin-bottom: 20px; }
+.urgent-instruction { font-size: 18px; color: #555; margin-bottom: 30px; }
+
+.alarm-actions { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+
+.btn-snooze {
+    background: #f4a261; color: white; border: none;
+    padding: 15px 30px; font-size: 20px; border-radius: 10px;
+    cursor: pointer; font-weight: bold;
+}
+
+.btn-scan {
+    background: #008b74; color: white; border: none;
+    padding: 15px 30px; font-size: 20px; border-radius: 10px;
+    cursor: pointer; font-weight: bold;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}        

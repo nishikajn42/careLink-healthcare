@@ -24,7 +24,12 @@
             border-left: 8px solid #ff4bb4; /* Pink for Digital Beti */
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
-        #beti-bubble { font-size: 1.2rem; font-weight: 600; color: #333; line-height: 1.5; }
+        #beti-bubble { 
+            font-size: 1.2rem; 
+            font-weight: 600; 
+            color: #333; 
+            line-height: 1.5; 
+        }
         .match-success { color: #28a745 !important; }
         .match-fail { color: #dc3545 !important; }
     </style>
@@ -62,7 +67,7 @@
                 // 3. COMPARISON: Kya doctor wali ID aur scanned ID match hui?
                 if (scannedData.id === expectedID) {
                     // ✅ MATCH FOUND
-                    const msg = `Haan Dadaji! Yeh bilkul sahi dawai hai. Yeh ${expectedName} hi hai. Aap ise le sakte hain.`;
+                    const msg = `Haan Yeh bilkul sahi dawai hai. Yeh ${expectedName} hi hai. Aap ise le sakte hain.`;
                     
                     bubble.innerText = msg;
                     bubble.className = "match-success";
@@ -78,7 +83,7 @@
 
                 } else {
                     // ❌ MISMATCH
-                    const errorMsg = `Rukiye Dadaji! Yeh galat dawai hai. Aapko ${expectedName} leni thi, par aapne ${scannedData.n || 'kuch aur'} scan kiya hai. Kripya sahi dawai uthaiye.`;
+                    const errorMsg = `Rukiye Yeh galat dawai hai. Aapko ${expectedName} leni thi, par aapne ${scannedData.n || 'kuch aur'} scan kiya hai. Kripya sahi dawai uthaiye.`;
                     
                     bubble.innerText = errorMsg;
                     bubble.className = "match-fail";
@@ -90,7 +95,7 @@
 
             } catch (e) {
                 console.error("Scan Error:", e);
-                speakBeti("Maaf kijiyega dadaji, main yeh code theek se padh nahi paayi.");
+                speakBeti("Maaf kijiyega , main yeh code theek se padh nahi paayi.");
             }
         };
 

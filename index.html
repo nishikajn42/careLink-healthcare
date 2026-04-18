@@ -7,8 +7,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="beti.css">
+    <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
 
@@ -202,9 +204,9 @@
 
     <div class="doctors-grid">
       <div class="doctor-card reveal">
-        <div class="doctor-img"><div class="doc-avatar">👨‍⚕️</div></div>
+        <div class="doctor-img"><div class="doc-avatar">👩‍⚕️</div></div>
         <div class="doctor-body">
-          <div class="doctor-name">Dr. Ramesh Khanna</div>
+          <div class="doctor-name">Dr. Soumya Jain</div>
           <div class="doctor-spec">Cardiologist</div>
           <div class="doctor-exp"><i class="fas fa-clock" style="color:var(--teal);margin-right:5px;font-size:0.75rem"></i>18 Years Experience</div>
           <!-- <div class="doc-rating">
@@ -274,9 +276,9 @@
         </div>
       </div>
       <div class="doctor-card reveal reveal-delay-2">
-        <div class="doctor-img"><div class="doc-avatar">👨‍⚕️</div></div>
+        <div class="doctor-img"><div class="doc-avatar">👩‍⚕️</div></div>
         <div class="doctor-body">
-          <div class="doctor-name">Dr. Vikram Singh</div>
+          <div class="doctor-name">Dr. Ronak Jain</div>
           <div class="doctor-spec">Dentist</div>
           <div class="doctor-exp"><i class="fas fa-clock" style="color:var(--teal);margin-right:5px;font-size:0.75rem"></i>20 Years Experience</div>
           <!-- <div class="doc-rating">
@@ -326,6 +328,15 @@
       </div>
     </div>
   </div>
+
+<div id="qrScannerSection" class="hidden">
+    <div class="qr-content">
+        <h3>Scan Your Medicine Packet</h3>
+        <div id="reader" style="width: 100%; max-width: 400px; margin: auto;"></div>
+        <p id="qrFeedback" style="font-weight: bold; margin-top: 15px;"></p>
+        <button id="cancelScanBtn" class="btn-danger" style="margin-top: 15px; padding: 10px 20px; font-size: 18px;">Cancel</button>
+    </div>
+</div>
 </section>
 
 <!-- ═══════════════════ FOOTER ═══════════════════ -->

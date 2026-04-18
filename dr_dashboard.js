@@ -202,7 +202,7 @@ window.saveConsultation = async function() {
             prescription: prescriptionData
         });
 
-        alert("✅ Consultation Saved Successfully! You can now print the Parcha.");
+        alert("✅ Consultation Saved Successfully! You can now Print it ");
         
         saveBtn.classList.add('hidden');
         document.getElementById('btn-print-rx').classList.remove('hidden');

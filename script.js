@@ -105,13 +105,13 @@
 const VALID_EMPLOYEE = { username: "EMP-01", password: "123" };
 
 const VALID_DOCTORS = [
-    { username: "DOC-01", password: "123", name: "Dr. Ramesh Khanna", spec: "Cardiologist" },
+    { username: "DOC-01", password: "123", name: "Dr. Soumya Jain", spec: "Cardiologist" },
     { username: "DOC-02", password: "123", name: "Dr. Aastha Nayak", spec: "Psychiatrist" },
     { username: "DOC-03", password: "123", name: "Dr. Aarya Nayak", spec: "Pediatrician" },
     { username: "DOC-04", password: "123", name: "Dr. Sanchita Jain", spec: "Neurologist" },
     { username: "DOC-05", password: "123", name: "Dr. Salini Yadav", spec: "General Physician" },
     { username: "DOC-06", password: "123", name: "Dr. Aashi Singhai", spec: "Orthopedist" },
-    { username: "DOC-07", password: "123", name: "Dr. Vikram Singh", spec: "Dentist" },
+    { username: "DOC-07", password: "123", name: "Dr. Ronak Jain", spec: "Dentist" },
     { username: "DOC-08", password: "123", name: "Dr. Saloni Yadav", spec: "ENT Specialist" }
 ];
 

@@ -42,6 +42,28 @@
         
         <button id="beti-btn" onclick="window.activateBeti()" style="background: #ff4bb4; border: none; border-radius: 50%; width: 100px; height: 100px; font-size: 50px; cursor: pointer; box-shadow: 0 6px 20px rgba(255, 75, 180, 0.6); display: flex; align-items: center; justify-content: center; transition: transform 0.2s;">👧</button>
     </div>
+    <div id="urgentAlarmModal" class="urgent-modal hidden">
+    <div class="urgent-content">
+        <div class="pulsing-icon">⏰</div>
+        <h1 class="urgent-title">MEDICINE TIME!</h1>
+        <h2 id="alarmMedName" class="urgent-med-name">Metoprolol succinate (Toprol XL)</h2>
+        <p class="urgent-instruction">Please take your medicine now and scan the QR code to confirm.</p>
+
+        <div class="alarm-actions">
+            <button id="snoozeBtn" class="btn-snooze">Snooze (5 Mins)</button>
+            <button id="scanMedBtn" class="btn-scan">Scan Medicine QR</button>
+        </div>
+    </div>
+</div>
+
+<div id="qrScannerSection" class="hidden">
+    <div class="qr-content">
+        <h3>Scan Your Medicine Packet</h3>
+        <div id="reader" style="width: 100%; max-width: 400px; margin: auto;"></div>
+        <p id="qrFeedback" style="font-weight: bold; margin-top: 15px;"></p>
+        <button id="cancelScanBtn" class="btn-danger" style="margin-top: 15px; padding: 10px 20px; font-size: 18px;">Cancel</button>
+    </div>
+</div>
 
     <script type="module">
         import { firebaseConfig } from './firebase-config.js';
@@ -125,7 +147,7 @@
             let html = `
                 <div class="hero-section">
                     <div class="greeting">
-                        <h1>Good Day, ${patientData.name.split(' ')[0]}</h1>
+                        <h1>Hello Good Day, ${patientData.name.split(' ')[0]}</h1>
                     </div>
                     <div class="clock-container">
                         <div class="clock" id="live-clock">00:00</div>
@@ -223,7 +245,7 @@
             // FIXED: Use the new unified speak function
             window.speak(
                 `Please scan your ${medName} medicine.`, 
-                `AAP, kripya apni ${medName} dawai scan karein.`
+                `Kripya apni ${medName} dawai scan karein.`
             );
 
             html5QrCode = new Html5Qrcode("reader");
@@ -246,7 +268,7 @@
                     // FIXED: Use the new unified speak function
                     window.speak(
                         `Yes, this is ${window.expectedMedName}. You need to take it ${window.expectedInstruction}.`, 
-                        `Ji Yeh ${window.expectedMedName} hi hai. Isse ${window.expectedInstruction} lena hai.`
+                        `Ji Yeh ${window.expectedMedName}  hai. Isse ${window.expectedInstruction} lena hai.`
                     );
 
                     document.getElementById('scanner-beti-bubble').style.backgroundColor = "#28a745";
@@ -289,6 +311,115 @@
         };
 
         window.onload = fetchRealData;
+
+        // =========================================
+// URGENT ALARM & QR SCANNER LOGIC
+// =========================================
+
+let snoozeCount = 0;
+const MAX_SNOOZES = 5;
+const SNOOZE_TIME_MS = 5 * 60 * 1000; // 5 minutes
+
+// Setup audio (Requires an 'alarm.mp3' file in your folder)
+const alarmAudio = new Audio('alarm.mp3'); 
+alarmAudio.loop = true; 
+
+let expectedMedicineQR = "TOPROL-XL-50MG"; // The QR code text we are looking for
+let html5QrCode = null;
+
+// 1. Function to show the Red Alarm Screen
+window.triggerFullScreenAlarm = function(medicineName, qrCodeValue) {
+    expectedMedicineQR = qrCodeValue; // Set what medicine we expect them to scan
+    document.getElementById('alarmMedName').innerText = medicineName;
+    document.getElementById('urgentAlarmModal').classList.remove('hidden');
+    
+    // Play sound 
+    alarmAudio.play().catch(e => console.log("Audio autoplay blocked by browser until user clicks:", e));
+};
+
+// 2. Snooze Button Logic
+document.getElementById('snoozeBtn').addEventListener('click', () => {
+    alarmAudio.pause(); 
+    alarmAudio.currentTime = 0;
+    
+    if (snoozeCount < MAX_SNOOZES) {
+        snoozeCount++;
+        document.getElementById('urgentAlarmModal').classList.add('hidden');
+        alert(`Snoozed. We will ring again in 5 minutes. (Snooze ${snoozeCount}/${MAX_SNOOZES})`);
+        
+        // Timer for next alarm
+        const currentMed = document.getElementById('alarmMedName').innerText;
+        setTimeout(() => {
+            triggerFullScreenAlarm(currentMed, expectedMedicineQR);
+        }, SNOOZE_TIME_MS); 
+        
+    } else {
+        alert("Maximum snoozes reached! You MUST take your medicine now.");
+        alarmAudio.play(); // Force alarm back on
+    }
+});
+
+// 3. Scan Button Logic (Opens Camera)
+document.getElementById('scanMedBtn').addEventListener('click', () => {
+    alarmAudio.pause(); 
+    alarmAudio.currentTime = 0;
+    document.getElementById('urgentAlarmModal').classList.add('hidden');
+    document.getElementById('qrScannerSection').classList.remove('hidden');
+    
+    startQRScanner();
+});
+
+// 4. Cancel Scan Button
+document.getElementById('cancelScanBtn').addEventListener('click', () => {
+    if(html5QrCode) {
+        html5QrCode.stop().then(() => {
+            document.getElementById('qrScannerSection').classList.add('hidden');
+            // Show alarm again if they cancel scanning
+            document.getElementById('urgentAlarmModal').classList.remove('hidden');
+            alarmAudio.play();
+        }).catch(err => console.error(err));
+    }
+});
+
+// 5. QR Scanner Camera Logic
+function startQRScanner() {
+    const feedbackText = document.getElementById('qrFeedback');
+    feedbackText.innerText = "Scanning...";
+    feedbackText.style.color = "#0f2942";
+
+    html5QrCode = new Html5Qrcode("reader");
+    
+    // Turn on the back camera
+    html5QrCode.start(
+        { facingMode: "environment" }, 
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        (decodedText, decodedResult) => {
+            // SUCCESSFUL SCAN LOGIC
+            if(decodedText === expectedMedicineQR) {
+                feedbackText.innerText = "✅ Correct Medicine Verified!";
+                feedbackText.style.color = "green";
+                
+                // Stop camera after 1.5 seconds and close everything
+                setTimeout(() => {
+                    html5QrCode.stop();
+                    document.getElementById('qrScannerSection').classList.add('hidden');
+                    snoozeCount = 0; // Reset snoozes for next time
+                    alert("Dose recorded successfully! Great job.");
+                }, 1500);
+            } else {
+                feedbackText.innerText = `❌ WRONG MEDICINE! You scanned: ${decodedText}`;
+                feedbackText.style.color = "red";
+                // Camera keeps running so they can try the correct packet
+            }
+        },
+        (errorMessage) => {
+            // background scanning errors (ignore these)
+        }
+    ).catch((err) => {
+        console.error("Camera failed to start:", err);
+        feedbackText.innerText = "Camera error. Please allow camera permissions.";
+    });
+}
     </script>
     
     <script src="beti.js"></script>

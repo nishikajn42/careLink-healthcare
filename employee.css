@@ -72,9 +72,11 @@ body {
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    position: relative; /* Important: Yeh graph ko container se bahar nahi jane dega */
+    position: relative; 
     height: 100%; 
     width: 100%;
+    min-width: 0; /* <-- CRITICAL FIX: Forces the grid item to shrink */
+    overflow: hidden; /* <-- CRITICAL FIX: Stops the canvas from spilling over */
 }
 
 /* Taki canvas container ke hisaab se hi adjust ho */
@@ -159,4 +161,50 @@ hr { margin: 20px 0; border: 0; border-top: 1px solid #eee; }
     display: flex;
     gap: 15px; /* Dono buttons ke beech ka space */
     align-items: center;
+}
+
+/* =========================================
+   RESPONSIVE DESIGN (Media Queries)
+   ========================================= */
+
+@media screen and (max-width: 992px) {
+    .charts-grid {
+        display: flex !important;
+        flex-direction: column !important; /* Safest way to stack charts */
+        height: auto !important; /* Unlocks the 350px height */
+    }
+    
+    .chart-card {
+        height: 350px !important; /* Gives each stacked chart enough room */
+        width: 100% !important;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .container {
+        padding: 15px !important; /* Recovers wasted space on small screens */
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr !important; /* Stacks the top 3 stat cards */
+    }
+
+    .navbar {
+        flex-direction: column !important;
+        gap: 15px !important;
+        text-align: center;
+    }
+
+    .nav-actions {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .modal-content {
+        width: 95% !important; /* Uses full screen width for the popup */
+    }
+
+    .table-card {
+        overflow-x: auto !important; /* Lets the table scroll side-to-side */
+    }
 }

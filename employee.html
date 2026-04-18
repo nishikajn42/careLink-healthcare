@@ -37,8 +37,17 @@
                 <h3>Registration Ratio</h3>
                 <canvas id="ratioChart"></canvas>
             </div>
+
             <div class="chart-card">
-                <h3>24-Hour Registration Trend</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h3 style="margin: 0;">Registration Trend</h3>
+                    <select id="timeFilter" style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; outline: none;">
+                        <option value="day">Today (24 Hours)</option>
+                        <option value="week">This Week (7 Days)</option>
+                        <option value="month">This Month (Weeks)</option>
+                        <option value="year">This Year (Months)</option>
+                    </select>
+                </div>
                 <canvas id="trendChart"></canvas>
             </div>
         </div>
